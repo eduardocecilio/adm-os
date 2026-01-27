@@ -32,7 +32,7 @@ const router = useRouter()
 
 <style scoped>
 .dashboard { padding: 40px; max-width: 1200px; margin: 0 auto; }
-.subtitle { color: #666; margin-bottom: 40px; }
+.subtitle { color: #666; margin-bottom: 40px; font-size: 1.2rem; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
 .card { 
   background: #fff; 
