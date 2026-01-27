@@ -1,10 +1,10 @@
-# � AdminOS - Inteligência Corporativa
+# 📊 AdminOS - Inteligência Corporativa
 
 Projeto Full Stack desenvolvido para unir conhecimentos de **Administração de Empresas** e **Ciência da Computação**.
 
 O objetivo é fornecer ferramentas avançadas de análise financeira, contábil e estratégica utilizando tecnologias modernas de web e dados.
 
-## � Tecnologias Utilizadas
+## 🚀 Tecnologias Utilizadas
 
 ### Frontend (Interface)
 - **Vue.js 3**: Framework JavaScript reativo.
@@ -16,7 +16,7 @@ O objetivo é fornecer ferramentas avançadas de análise financeira, contábil 
 - **FastAPI**: Framework para criação da API.
 - **Pandas**: Biblioteca para manipulação de dados financeiros e contábeis.
 
-## � Funcionalidades Atuais
+## 🛠 Funcionalidades Atuais
 
 1.  **Cálculo de Investimentos (Swing Trade vs Day Trade):**
     - Apuração automática de lucro líquido.
@@ -27,24 +27,9 @@ O objetivo é fornecer ferramentas avançadas de análise financeira, contábil 
     - Módulo de Contabilidade (Análise de Balanços).
     - Módulo de Marketing (Análise de Sentimento com IA).
 
-## � Como Rodar o Projeto
+## 📦 Como Rodar o Projeto
 
 Consulte o arquivo [COMANDOS.md](./COMANDOS.md) para o guia passo a passo de como iniciar o Backend e o Frontend.
 
 ---
 **Desenvolvido por Eduardo Cecílio**
-
-```
-
----
-
-### Como salvar tudo agora
-
-Agora que os arquivos estão certinhos, pode rodar o comando de envio no terminal da raiz (`admin-os`):
-
-```zsh
-git add .
-git commit -m "Docs: Correção de formatação no README e COMANDOS"
-git push
-
-```

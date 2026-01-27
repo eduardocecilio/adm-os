@@ -4,47 +4,29 @@ const router = useRouter()
 </script>
 
 <template>
-  <div class="dashboard">
-    <h1>AdminOS</h1>
-    <p class="subtitle">Sistema de Inteligência Corporativa</p>
+  <div class="page">
+    <header>
+      <button @click="router.push('/')" class="back-btn">← Voltar</button>
+      <h1>Contabilidade</h1>
+    </header>
     
-    <div class="grid">
-      <div class="card" @click="router.push('/financeiro')">
-        <div class="icon">�</div>
-        <h3>Contabilidade</h3>
-        <p>Análise de Balanços, Liquidez e DRE.</p>
-      </div>
-
-      <div class="card" @click="router.push('/carteira')">
-        <div class="icon">�</div>
-        <h3>Carteira & Risco</h3>
-        <p>Gestão de ativos, Markowitz e Monte Carlo.</p>
-      </div>
-
-      <div class="card" @click="router.push('/marketing')">
-        <div class="icon">�</div>
-        <h3>Estratégia</h3>
-        <p>Análise de sentimento e KPIs de marca.</p>
+    <div class="content">
+      <div class="placeholder-card">
+        <span class="icon-big">💰</span>
+        <h2>Módulo em Desenvolvimento</h2>
+        <p>Em breve você poderá importar arquivos de Balanço Patrimonial e DRE para análise automática.</p>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.dashboard { padding: 40px; max-width: 1200px; margin: 0 auto; }
-.subtitle { color: #666; margin-bottom: 40px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-.card { 
-  background: #fff; 
-  padding: 30px; 
-  border-radius: 12px; 
-  cursor: pointer; 
-  transition: all 0.3s ease; 
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-}
-.card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); border-color: #42b983; }
-.icon { font-size: 2.5rem; margin-bottom: 15px; }
-h3 { color: #2c3e50; margin: 0 0 10px 0; font-size: 1.5rem; }
-p { color: #666; line-height: 1.5; }
+.page { padding: 40px; max-width: 1000px; margin: 0 auto; }
+header { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; }
+.back-btn { background: white; border: 1px solid #ccc; padding: 8px 16px; border-radius: 6px; cursor: pointer; color: #555; }
+.back-btn:hover { background: #eee; }
+.content { background: white; padding: 60px; border-radius: 12px; border: 1px solid #eee; text-align: center; }
+.icon-big { font-size: 4rem; display: block; margin-bottom: 20px; }
+h2 { color: #2c3e50; }
+p { color: #666; }
 </style>

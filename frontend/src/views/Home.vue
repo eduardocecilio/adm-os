@@ -5,24 +5,26 @@ const router = useRouter()
 
 <template>
   <div class="dashboard">
-    <h1>AdminOS</h1>
-    <p class="subtitle">Sistema de Inteligência Corporativa</p>
+    <header>
+      <h1>AdminOS</h1>
+      <p class="subtitle">Sistema de Inteligência Corporativa</p>
+    </header>
     
     <div class="grid">
       <div class="card" @click="router.push('/financeiro')">
-        <div class="icon">�</div>
+        <div class="icon">💰</div>
         <h3>Contabilidade</h3>
         <p>Análise de Balanços, Liquidez e DRE.</p>
       </div>
 
       <div class="card" @click="router.push('/carteira')">
-        <div class="icon">�</div>
+        <div class="icon">📈</div>
         <h3>Carteira & Risco</h3>
-        <p>Gestão de ativos, Markowitz e Monte Carlo.</p>
+        <p>Gestão de ativos, Markowitz e Swing Trade.</p>
       </div>
 
       <div class="card" @click="router.push('/marketing')">
-        <div class="icon">�</div>
+        <div class="icon">🎯</div>
         <h3>Estratégia</h3>
         <p>Análise de sentimento e KPIs de marca.</p>
       </div>
@@ -31,8 +33,8 @@ const router = useRouter()
 </template>
 
 <style scoped>
-.dashboard { padding: 40px; max-width: 1200px; margin: 0 auto; }
-.subtitle { color: #666; margin-bottom: 40px; font-size: 1.2rem; }
+.dashboard { padding: 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
+.subtitle { color: #666; margin-bottom: 50px; font-size: 1.2rem; margin-top: -10px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
 .card { 
   background: #fff; 
@@ -42,6 +44,7 @@ const router = useRouter()
   transition: all 0.3s ease; 
   border: 1px solid #e0e0e0;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  text-align: left; /* Texto alinhado à esquerda dentro do card fica mais elegante */
 }
 .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); border-color: #42b983; }
 .icon { font-size: 2.5rem; margin-bottom: 15px; }
