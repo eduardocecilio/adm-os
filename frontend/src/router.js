@@ -13,6 +13,7 @@ import SwingTrade from './views/investimentos/SwingTrade.vue'
 // Importações de CONTABILIDADE
 import MenuContabilidade from './views/contabilidade/MenuContabilidade.vue'
 import Indicadores from './views/contabilidade/Indicadores.vue'
+import BalancoPatrimonial from './views/contabilidade/BalancoPatrimonial.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -24,6 +25,7 @@ const routes = [
   // Rotas de Contabilidade
   { path: '/contabilidade', component: MenuContabilidade },
   { path: '/contabilidade/indicadores', component: Indicadores },
+  { path: '/contabilidade/balanco', component: BalancoPatrimonial },
 
   // Rotas de Estratégia
   { path: '/estrategia', component: MenuEstrategia },

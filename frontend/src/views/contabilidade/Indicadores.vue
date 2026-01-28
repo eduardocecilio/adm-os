@@ -1,13 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-
-const menuContabilidade = [
-  { nome: 'Visão Geral', link: '/contabilidade' },
-  { nome: 'Cálculo de ROI/ROE', link: '/contabilidade/indicadores' },
-  { nome: 'Análise de DRE (Em breve)', link: '#' },
-  { nome: 'Balanço Patrimonial (Em breve)', link: '#' }
-]
+import { menuContabilidade } from '../../constants/menuContabilidade.js'
 
 // Dados do Formulário
 const form = ref({

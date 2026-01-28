@@ -1,17 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
+import { menuInvestimentos } from '../../constants/menuInvestimentos.js'
 
 const selic = ref('Carregando...')
 const dolar = ref('Carregando...')
-
-// ATUALIZADO: Links mudaram de /carteira para /investimentos
-const menuInvestimentos = [
-  { nome: 'Visão Geral', link: '/investimentos' },
-  { nome: 'Simulador Swing Trade', link: '/investimentos/swing-trade' },
-  { nome: 'Simulador Day Trade (Em breve)', link: '#' },
-  { nome: 'Estratégias de Opções (Em breve)', link: '#' } // Já coloquei sua ideia aqui
-]
 
 onMounted(async () => {
   try {
@@ -54,7 +47,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/* (Copie o mesmo estilo que já estava antes, não mudou nada no CSS) */
 .welcome-screen { text-align: center; padding-top: 50px; }
 .stats-resumo { display: flex; gap: 20px; justify-content: center; margin-top: 40px; flex-wrap: wrap; }
 .stat-box { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e0e0e0; min-width: 180px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }

@@ -1,13 +1,6 @@
 <script setup>
 import ModuleLayout from '../../components/ModuleLayout.vue'
-
-// O Menu reflete a estrutura de Contabilidade Corporativa
-const menuContabilidade = [
-  { nome: 'Visão Geral', link: '/contabilidade' },
-  { nome: 'Cálculo de ROI/ROE', link: '/contabilidade/indicadores' },
-  { nome: 'Análise de DRE (Em breve)', link: '#' },
-  { nome: 'Balanço Patrimonial (Em breve)', link: '#' }
-]
+import { menuContabilidade } from '../../constants/menuContabilidade.js'
 </script>
 
 <template>
@@ -26,7 +19,7 @@ const menuContabilidade = [
           <strong class="positivo">R$ 1.2M</strong>
         </div>
         <div class="stat-box">
-          <span>Margem Líquda</span>
+          <span>Margem Líquida</span>
           <strong class="neutro">18.5%</strong>
         </div>
         <div class="stat-box">

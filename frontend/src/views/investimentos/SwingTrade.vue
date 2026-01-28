@@ -1,14 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-
-// ATUALIZADO: Menu apontando para /investimentos
-const menuInvestimentos = [
-  { nome: 'Visão Geral', link: '/investimentos' },
-  { nome: 'Simulador Swing Trade', link: '/investimentos/swing-trade' },
-  { nome: 'Simulador Day Trade (Em breve)', link: '#' },
-  { nome: 'Estratégias de Opções (Em breve)', link: '#' }
-]
+import { menuInvestimentos } from '../../constants/menuInvestimentos.js'
 
 const form = ref({
   preco_compra: 0,
@@ -20,7 +13,6 @@ const form = ref({
 const resultado = ref(null)
 
 async function calcularNoBackend() {
-  // A URL do backend continua a mesma, pois a lógica de cálculo não mudou
   try {
     const resposta = await fetch('http://127.0.0.1:8000/investimentos/swing-trade/calcular', {
       method: 'POST',
@@ -101,7 +93,6 @@ async function calcularNoBackend() {
 </template>
 
 <style scoped>
-/* (Mantenha o mesmo CSS que fizemos no passo anterior) */
 /* Wrapper Global */
 .ferramenta-wrapper { padding: 0 20px; }
 

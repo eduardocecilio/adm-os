@@ -1,12 +1,6 @@
 <script setup>
 import ModuleLayout from '../../components/ModuleLayout.vue'
-
-const menuEstrategia = [
-  { nome: 'Visão Geral', link: '/estrategia' },
-  { nome: 'Calculadora NPS', link: '/estrategia/nps' },
-  { nome: 'Matriz SWOT (Em breve)', link: '#' },
-  { nome: 'Análise de Sentimento (IA)', link: '#' }
-]
+import { menuEstrategia } from '../../constants/menuEstrategia.js'
 </script>
 
 <template>
@@ -48,9 +42,9 @@ const menuEstrategia = [
 .stat-box { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e0e0e0; min-width: 180px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
 .stat-box span { display: block; color: #666; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-box strong { display: block; font-size: 1.8rem; color: #2c3e50; }
-.stat-box strong.positivo { color: #27ae60; } /* Verde */
-.stat-box strong.neutro { color: #2980b9; } /* Azul */
-.stat-box strong.negativo { color: #c0392b; } /* Vermelho */
+.stat-box strong.positivo { color: #27ae60; }
+.stat-box strong.neutro { color: #2980b9; }
+.stat-box strong.negativo { color: #c0392b; }
 
 .aviso-ia { margin-top: 60px; background: #f3e5f5; display: inline-block; padding: 15px 30px; border-radius: 50px; color: #8e44ad; font-size: 0.9rem; border: 1px solid #e1bee7; }
 </style>
