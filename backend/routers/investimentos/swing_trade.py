@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-router = APIRouter() # Cria um "sub-aplicativo" só para investimentos
+# Criamos o router específico desta operação
+router = APIRouter(prefix="/investimentos/swing-trade", tags=["Investimentos"])
 
 class DadosOperacao(BaseModel):
     preco_compra: float
@@ -9,19 +10,14 @@ class DadosOperacao(BaseModel):
     quantidade: int
     taxa_corretagem: float = 2.00 
 
-@router.post("/calcular-resultado")
-def calcular_resultado(dados: DadosOperacao, tipo: str = "normal"):
-    # ... (A mesma lógica de cálculo de antes) ...
+@router.post("/calcular")
+def calcular_resultado(dados: DadosOperacao):
     total_compra = dados.preco_compra * dados.quantidade
     total_venda = dados.preco_venda * dados.quantidade
     lucro_bruto = total_venda - total_compra
 
-    if tipo == "daytrade":
-        aliq_emolumentos = 0.000250
-        aliq_ir = 0.20
-    else:
-        aliq_emolumentos = 0.000345
-        aliq_ir = 0.15
+    aliq_emolumentos = 0.000345
+    aliq_ir = 0.15
 
     custos_totais = (dados.taxa_corretagem * 2) + ((total_compra + total_venda) * aliq_emolumentos)
     lucro_antes_ir = lucro_bruto - custos_totais

@@ -22,7 +22,7 @@ const resultado = ref(null)
 async function calcularNoBackend() {
   // A URL do backend continua a mesma, pois a lógica de cálculo não mudou
   try {
-    const resposta = await fetch('http://127.0.0.1:8000/calcular-resultado?tipo=normal', {
+    const resposta = await fetch('http://127.0.0.1:8000/investimentos/swing-trade/calcular', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
