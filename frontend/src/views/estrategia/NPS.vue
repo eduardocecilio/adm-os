@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import { menuEstrategia } from '../../constants/menuEstrategia.js'
+import { menuEstrategia } from '../../constants/menus/menuEstrategia.js'
 
 // Dados do NPS
 const form = ref({

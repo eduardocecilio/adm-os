@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import { menuInvestimentos } from '../../constants/menuInvestimentos.js'
+import { menuInvestimentos } from '../../constants/menus/menuInvestimentos.js'
 
 const form = ref({
   preco_compra: 0,

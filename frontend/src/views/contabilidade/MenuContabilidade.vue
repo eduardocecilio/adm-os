@@ -1,6 +1,6 @@
 <script setup>
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import { menuContabilidade } from '../../constants/menuContabilidade.js'
+import { menuContabilidade } from '../../constants/menus/menuContabilidade.js'
 </script>
 
 <template>

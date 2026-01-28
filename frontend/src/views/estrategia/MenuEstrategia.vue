@@ -1,6 +1,6 @@
 <script setup>
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import { menuEstrategia } from '../../constants/menuEstrategia.js'
+import { menuEstrategia } from '../../constants/menus/menuEstrategia.js'
 </script>
 
 <template>
