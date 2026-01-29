@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
+from routers import exportar
 
 # --- IMPORTS DOS ROTEADORES ---
 from routers.investimentos import swing_trade
@@ -37,5 +38,8 @@ def home():
 app.include_router(swing_trade.router, dependencies=[Depends(verificar_token)])
 # app.include_router(dre.router, dependencies=[Depends(verificar_token)]) <-- REMOVA OU COMENTE ESTA LINHA
 
-# Rota de Indicadores (Essa é a que queremos agora)
+# Rota de Indicadores
 app.include_router(indicadores.router, dependencies=[Depends(verificar_token)])
+
+# Rota de Exportação
+app.include_router(exportar.router, dependencies=[Depends(verificar_token)])

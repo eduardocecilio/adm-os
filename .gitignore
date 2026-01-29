@@ -176,3 +176,16 @@ venv.bak/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# --- SISTEMA OPERACIONAL (MAC/WINDOWS) ---
+.DS_Store
+Thumbs.db
+
+# --- IDE / EDITOR (VS Code) ---
+.idea/
+.vscode/
+*.swp
+
+# --- BANCO DE DADOS LOCAL (Caso use SQLite no futuro) ---
+*.sqlite3
+*.db

@@ -1,14 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-
-// --- CORREÇÃO 1: Importar o arquivo .vue direto (sem /index.js) ---
 import DropdownEditable from '../../components/DropdownEditable.vue' 
-
-// --- CORREÇÃO 2: Adicionar a pasta 'menus' no caminho ---
 import { menuContabilidade } from '../../constants/menus/menuContabilidade.js'
-
 import { opcoesBalanco } from '../../constants/options/contabilidade.js'
+import BtnExcel from '../../components/BtnExcel.vue'
 
 // --- Estado dos Dados ---
 const balanco = ref({
@@ -187,6 +183,13 @@ const checarESalvar = () => {
       <button class="btn-salvar" @click="checarESalvar">
         💾 Salvar Balanço
       </button>
+
+      <BtnExcel 
+        :dados="balanco" 
+        tipo="balanco" 
+        nomeArquivo="Balanco_Patrimonial.xlsx"
+        style="margin-left: 15px;" 
+    />
     </div>
 
     <div class="historico-area" v-if="historico.length > 0">

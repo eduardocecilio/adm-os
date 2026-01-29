@@ -1,16 +1,16 @@
 // Opções para o Balanço Patrimonial
 export const opcoesBalanco = {
   ac: [
-    'Disponível',             // <--- Adicionado conforme sua planilha
-    'Caixa e Equivalentes',   // <--- Mantido como sinônimo
-    'Contas a Receber', 
-    'Estoques', 
+    'Disponível (*)',             // Usado na Liquidez Imediata
+    'Caixa e Equivalentes',
+    'Contas a Receber (*)',       // Usado no Prazo Médio de Recebimento (PMR)
+    'Estoques (*)',               // Usado no Prazo Médio de Estocagem (PME)
     'Tributos a Recuperar', 
     'Outros Ativos', 
-    'Despesas Antecipadas'    // <--- Essencial para Liquidez Seca
+    'Despesas Antecipadas (*)'    // Usado na Liquidez Seca
   ],
   anc: [
-    'Ativo Realizável a Longo Prazo', // <--- Essencial para Liquidez Geral
+    'Ativo Realizável a Longo Prazo (*)', // Usado na Liquidez Geral
     'Tributos a Recuperar (Longo Prazo)', 
     'Depósitos Judiciais', 
     'Outros Ativos (Longo Prazo)',
@@ -20,8 +20,8 @@ export const opcoesBalanco = {
     'Depreciação Acumulada'
   ],
   pc: [
-    'Fornecedores', 
-    'Empréstimos e Financiamentos', 
+    'Fornecedores (*)',                   // Usado no Prazo Médio de Pagamento (PMP)
+    'Empréstimos e Financiamentos (*)',   // Usado no ROI (Investimento)
     'Obrigações Trabalhistas', 
     'Impostos, Taxas e Contribuições', 
     'Adiantamento de Clientes',
@@ -29,7 +29,7 @@ export const opcoesBalanco = {
     'Outras Obrigações'
   ],
   pnc: [
-    'Empréstimos e Financiamentos (Longo Prazo)', 
+    'Empréstimos e Financiamentos (Longo Prazo) (*)', // Usado no ROI e Endividamento
     'Impostos, Taxas e Contribuições (Longo Prazo)',
     'Benefícios a Empregados',
     'Contingências',
@@ -46,48 +46,61 @@ export const opcoesBalanco = {
   ]
 }
 
-// Opções para a DRE
+// --- DRE ESTRUTURADA ---
 export const opcoesDRE = {
   receita: [
-    'Receita Bruta de Vendas', 
-    'Venda de Produtos', 
-    'Venda de Serviços', 
-    'Outras Receitas Operacionais'
+    'Receita Bruta de Produtos (*)', // Usado no PMR
+    'Venda de Mercadorias',
+    'Prestação de Serviços'
   ],
   deducoes: [
-    'Impostos sobre Vendas (ICMS/ISS/PIS/COFINS)', 
-    'Devoluções de Vendas', 
-    'Descontos Incondicionais', 
-    'Abatimentos'
+    'Impostos sobre a Receita Bruta',
+    'Devoluções',
+    'Descontos Incondicionais'
   ],
-  custos: [
-    'Custo dos Produtos Vendidos (CPV)', 
-    'Custo das Mercadorias Vendidas (CMV)', 
-    'Custo dos Serviços Prestados (CSP)', 
-    'Custo de Estoque'
+  // Custos de Formação (CTO)
+  custos_producao: [
+    'Pessoal - CTO',
+    'Serviços de Terceiros - CTO (*)', // Usado para calcular Compras
+    'Depreciação e Amortização - CTO',
+    'Insumos de Produção'
   ],
-  despesas: [
-    'Despesas com Pessoal', 
-    'Salários e Encargos', 
-    'Despesas Gerais e Administrativas', 
-    'Aluguel e Condomínio', 
-    'Marketing e Publicidade', 
-    'Energia, Água e Internet', 
-    'Depreciação e Amortização', 
-    'Manutenção e Reparos', 
-    'Software e Licenças'
+  // Custos de Venda (CMV)
+  custos_venda: [
+    'Custos dos Produtos e Mercadorias Vendidas',
+    'CPV / CMV (*)' // Usado no PME e para calcular Compras
+  ],
+  // Despesas Comerciais (CML)
+  desp_comerciais: [
+    'Pessoal - CML',
+    'Serviços de Terceiros - CML (*)', // Usado para calcular Compras
+    'Depreciação e Amortização - CML',
+    'Perdas Estimadas de Valores a Receber - CML',
+    'Comissões',
+    'Publicidade'
+  ],
+  // Despesas Administrativas (ADM)
+  desp_administrativas: [
+    'Pessoal - ADM',
+    'Serviços de Terceiros - ADM (*)', // Usado para calcular Compras
+    'Depreciação e Amortização - ADM',
+    'Outras Despesas - ADM',
+    'Aluguel',
+    'Energia e Água'
+  ],
+  // Outras Ops
+  outras_ops: [
+    'Outras Receitas Operacionais',
+    'Outras Despesas Operacionais'
   ],
   financeiro: [
-    'Receitas Financeiras', 
-    'Despesas Financeiras', 
-    'Juros sobre Capital Próprio', 
+    'Receitas Financeiras',
+    'Despesas Financeiras',
     'Variação Cambial',
-    'Descontos Obtidos',
-    'Juros Pagos'
+    'Juros sobre Capital Próprio'
   ],
   impostos: [
-    'IRPJ (Imposto de Renda)', 
-    'CSLL (Contribuição Social)', 
-    'Simples Nacional'
+    'Imposto de Renda e Contribuição Social',
+    'Provisão para IR/CS'
   ]
 }
