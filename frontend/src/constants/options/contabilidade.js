@@ -1,8 +1,7 @@
 // Opções para o Balanço Patrimonial
 export const opcoesBalanco = {
   ac: [
-    'Disponível (*)',             // Usado na Liquidez Imediata
-    'Caixa e Equivalentes',
+    'Disponível (*)',             // mesmo que Caixa e Equivalentes, usado na Liquidez Imediata
     'Contas a Receber (*)',       // Usado no Prazo Médio de Recebimento (PMR)
     'Estoques (*)',               // Usado no Prazo Médio de Estocagem (PME)
     'Tributos a Recuperar', 

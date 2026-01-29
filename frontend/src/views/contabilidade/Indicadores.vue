@@ -1,14 +1,14 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue' // <--- Adicionei 'computed'
+import { ref, onMounted, computed } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import BtnExcel from '../../components/BtnExcel.vue' // <--- Importei o Botão
+import BtnExcel from '../../components/BtnExcel.vue'
 import { menuContabilidade } from '../../constants/menus/menuContabilidade.js'
 
-// --- Estados ---
 const historicoBalanco = ref([])
 const historicoDRE = ref([])
 
 const selecionadoBalanco = ref('') 
+const selecionadoBalancoAnt = ref('') 
 const selecionadoDRE = ref('')     
 
 const resLiquidez = ref(null)
@@ -19,30 +19,13 @@ const resAtividade = ref(null)
 const loading = ref(false)
 const erro = ref(null)
 
-// --- Carregar Dados do LocalStorage ---
 onMounted(() => {
   const savedBalanco = localStorage.getItem('historico_balanco')
   const savedDRE = localStorage.getItem('historico_dre')
-
   if (savedBalanco) historicoBalanco.value = JSON.parse(savedBalanco)
   if (savedDRE) historicoDRE.value = JSON.parse(savedDRE)
 })
 
-// --- Computed para Exportação (Junta tudo num pacote só) ---
-const dadosParaExportar = computed(() => {
-  // Só libera se tiver calculado tudo
-  if (!resLiquidez.value || !resRentabilidade.value || !resEndividamento.value || !resAtividade.value) {
-    return null
-  }
-  return {
-    liquidez: resLiquidez.value,
-    rentabilidade: resRentabilidade.value,
-    endividamento: resEndividamento.value,
-    atividade: resAtividade.value
-  }
-})
-
-// --- Ação de Calcular ---
 const calcularIndices = async () => {
   erro.value = null
   resLiquidez.value = null
@@ -51,20 +34,30 @@ const calcularIndices = async () => {
   resAtividade.value = null
 
   if (selecionadoBalanco.value === '' || selecionadoDRE.value === '') {
-    erro.value = "⚠️ Por favor, selecione um Balanço e uma DRE."
+    erro.value = "⚠️ Por favor, selecione os dados do Período Atual (Balanço e DRE)."
     return
   }
 
   const balancoObj = historicoBalanco.value[selecionadoBalanco.value].dados
   const dreObj = historicoDRE.value[selecionadoDRE.value].dados
+  
+  let balancoAntObj = null
+  if (selecionadoBalancoAnt.value !== '' && selecionadoBalancoAnt.value !== selecionadoBalanco.value) {
+    balancoAntObj = historicoBalanco.value[selecionadoBalancoAnt.value].dados
+  }
+
+  const payload = { 
+    balanco: balancoObj, 
+    dre: dreObj,
+    balanco_anterior: balancoAntObj
+  }
 
   loading.value = true
 
   try {
     const headers = { 'Content-Type': 'application/json', 'x-token': 'admin-os-segredo-2026' }
-    const body = JSON.stringify({ balanco: balancoObj, dre: dreObj })
+    const body = JSON.stringify(payload)
 
-    // 4 CHAMADAS PARALELAS
     const [respLiq, respRent, respEnd, respAtiv] = await Promise.all([
       fetch('http://127.0.0.1:8000/contabilidade/indicadores/liquidez', { method: 'POST', headers, body }),
       fetch('http://127.0.0.1:8000/contabilidade/indicadores/rentabilidade', { method: 'POST', headers, body }),
@@ -72,7 +65,7 @@ const calcularIndices = async () => {
       fetch('http://127.0.0.1:8000/contabilidade/indicadores/atividade', { method: 'POST', headers, body })
     ])
 
-    if (!respLiq.ok || !respRent.ok || !respEnd.ok || !respAtiv.ok) throw new Error("Erro no servidor.")
+    if (!respLiq.ok) throw new Error("Erro de comunicação com o servidor.")
 
     resLiquidez.value = await respLiq.json()
     resRentabilidade.value = await respRent.json()
@@ -80,124 +73,200 @@ const calcularIndices = async () => {
     resAtividade.value = await respAtiv.json()
 
   } catch (e) {
-    console.error(e)
     erro.value = "Erro: " + e.message
   } finally {
     loading.value = false
   }
 }
 
-// Helpers de classe (Cores)
-const getClassLiq = (v) => v > 1.0 ? 'bom' : (v >= 0.9 ? 'medio' : 'ruim')
-const getClassRent = (v) => v > 15.0 ? 'bom' : (v > 5.0 ? 'medio' : 'ruim')
-const getClassEndiv = (v) => v < 50.0 ? 'bom' : (v < 70.0 ? 'medio' : 'ruim')
-const getClassCiclo = (v) => v < 60 ? 'bom' : (v < 90 ? 'medio' : 'ruim')
+// Helpers Visuais
+const getClassLiq = (v) => v > 1.0 ? 'text-green' : (v >= 0.9 ? 'text-orange' : 'text-red')
+const getClassRent = (v) => v > 15.0 ? 'text-green' : (v > 5.0 ? 'text-orange' : 'text-red')
+const getClassEndiv = (v) => v < 50.0 ? 'text-green' : (v < 70.0 ? 'text-orange' : 'text-red')
+const getClassCiclo = (v) => v < 60 ? 'text-green' : (v < 90 ? 'text-orange' : 'text-red')
+
+const dadosParaExportar = computed(() => {
+  if (!resLiquidez.value) return {}
+  return {
+    liquidez: resLiquidez.value,
+    rentabilidade: resRentabilidade.value,
+    endividamento: resEndividamento.value,
+    atividade: resAtividade.value
+  }
+})
 </script>
 
 <template>
   <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="menuContabilidade">
     
     <div class="header-pagina">
-      <h2>Indicadores Financeiros</h2>
-      <p>Dashboard completo de performance empresarial.</p>
+      <h2>Dashboard Financeiro</h2>
+      <p>Análise de performance e saúde financeira da empresa.</p>
     </div>
 
-    <div class="painel-selecao">
-      <div class="campo-select">
-        <label>1. Escolha o Balanço Patrimonial</label>
-        <select v-model="selecionadoBalanco" class="input-select">
-          <option value="" disabled>Selecione...</option>
-          <option v-for="(item, index) in historicoBalanco" :key="index" :value="index">
-            📅 {{ item.data }} - Total: R$ {{ item.total.toLocaleString('pt-BR') }}
-          </option>
-        </select>
-      </div>
-      <div class="campo-select">
-        <label>2. Escolha a DRE</label>
-        <select v-model="selecionadoDRE" class="input-select">
-          <option value="" disabled>Selecione...</option>
-          <option v-for="(item, index) in historicoDRE" :key="index" :value="index">
-            📅 {{ item.data }} - Lucro: R$ {{ item.lucro.toLocaleString('pt-BR') }}
-          </option>
-        </select>
-      </div>
-
-      <div class="actions-row">
-        <button @click="calcularIndices" class="btn-calcular" :disabled="loading">
-          {{ loading ? 'Calculando...' : '📊 Gerar Dashboard' }}
-        </button>
-
-        <BtnExcel 
-          v-if="dadosParaExportar"
-          :dados="dadosParaExportar" 
-          tipo="indicadores" 
-          nomeArquivo="Relatorio_Indicadores.xlsx"
-          class="btn-exportar"
-        />
-      </div>
-
-      <div v-if="erro" class="msg-erro">{{ erro }}</div>
-    </div>
-
-    <div v-if="resLiquidez && resRentabilidade && resEndividamento && resAtividade" class="resultados-grid">
+    <div class="control-panel">
       
-      <div class="card-resultado">
-        <h3>💧 Liquidez</h3>
-        <div class="indices-list">
-          <div class="item-indice"><span class="label">Corrente</span><div class="valor" :class="getClassLiq(resLiquidez.indices.corrente)">{{ resLiquidez.indices.corrente }}</div></div>
-          <div class="item-indice"><span class="label">Seca</span><div class="valor" :class="getClassLiq(resLiquidez.indices.seca)">{{ resLiquidez.indices.seca }}</div></div>
-          <div class="item-indice"><span class="label">Imediata</span><div class="valor" :class="getClassLiq(resLiquidez.indices.imediata)">{{ resLiquidez.indices.imediata }}</div></div>
-          <div class="item-indice"><span class="label">Geral</span><div class="valor" :class="getClassLiq(resLiquidez.indices.geral)">{{ resLiquidez.indices.geral }}</div></div>
-        </div>
-      </div>
-
-      <div class="card-resultado">
-        <h3>📈 Rentabilidade</h3>
-        <div class="indices-list">
-          <div class="item-indice"><span class="label">ROI</span><div class="valor" :class="getClassRent(resRentabilidade.indices.roi)">{{ resRentabilidade.indices.roi }}%</div></div>
-          <div class="item-indice"><span class="label">ROE</span><div class="valor" :class="getClassRent(resRentabilidade.indices.roe)">{{ resRentabilidade.indices.roe }}%</div></div>
-          <div class="item-indice"><span class="label">ROA</span><div class="valor" :class="getClassRent(resRentabilidade.indices.roa)">{{ resRentabilidade.indices.roa }}%</div></div>
-        </div>
-      </div>
-
-      <div class="card-resultado">
-        <h3>⚖️ Estrutura</h3>
-        <div class="indices-list">
-          <div class="item-indice full-width"><span class="label">CT / CP</span><div class="valor">{{ resEndividamento.indices.ct_cp }}</div></div>
-          <div class="item-indice full-width"><span class="label">Part. Terceiros</span><div class="valor" :class="getClassEndiv(resEndividamento.indices.participacao_ct)">{{ resEndividamento.indices.participacao_ct }}%</div></div>
-        </div>
-      </div>
-
-      <div class="card-resultado">
-        <h3>🔄 Ciclos de Atividade</h3>
-        <div class="indices-list">
-          
-          <div class="item-indice">
-            <span class="label">PME (Estocagem)</span>
-            <div class="valor">{{ resAtividade.indices.pme }} <small>dias</small></div>
-          </div>
-          <div class="item-indice">
-            <span class="label">PMR (Recebimento)</span>
-            <div class="valor">{{ resAtividade.indices.pmr }} <small>dias</small></div>
-          </div>
-          <div class="item-indice">
-            <span class="label">PMP (Pagamento)</span>
-            <div class="valor">{{ resAtividade.indices.pmp }} <small>dias</small></div>
-          </div>
-          
-          <div class="item-indice highlight-blue">
-            <span class="label">Ciclo Operacional</span>
-            <div class="valor">{{ resAtividade.indices.ciclo_operacional }} <small>dias</small></div>
-          </div>
-
-          <div class="item-indice full-width highlight-green">
-            <span class="label">Ciclo de Caixa</span>
-            <div class="valor" :class="getClassCiclo(resAtividade.indices.ciclo_caixa)">
-              {{ resAtividade.indices.ciclo_caixa }} dias
+      <div class="panel-section main-inputs">
+        <div class="section-title">📅 Período de Análise (Obrigatório)</div>
+        <div class="inputs-row">
+          <div class="input-group">
+            <label>Balanço Patrimonial (Final)</label>
+            <div class="select-wrapper">
+              <select v-model="selecionadoBalanco">
+                <option value="" disabled>Selecione o arquivo...</option>
+                <option v-for="(item, index) in historicoBalanco" :key="index" :value="index">
+                  {{ item.data }} | Total: R$ {{ item.total.toLocaleString('pt-BR') }}
+                </option>
+              </select>
             </div>
-            <p class="desc">Tempo entre pagar fornecedor e receber do cliente.</p>
           </div>
+          
+          <div class="input-group">
+            <label>DRE do Exercício</label>
+            <div class="select-wrapper">
+              <select v-model="selecionadoDRE">
+                <option value="" disabled>Selecione o arquivo...</option>
+                <option v-for="(item, index) in historicoDRE" :key="index" :value="index">
+                  {{ item.data }} | Lucro: R$ {{ item.lucro.toLocaleString('pt-BR') }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      <div class="panel-divider"></div>
+
+      <div class="panel-section secondary-inputs">
+        <div class="section-title">⚖️ Comparativo (Para Médias)</div>
+        <div class="input-group">
+          <label>Balanço Anterior (Inicial)</label>
+          <div class="select-wrapper">
+            <select v-model="selecionadoBalancoAnt">
+              <option value="">Não utilizar (Cálculo Simples)</option>
+              <option v-for="(item, index) in historicoBalanco" :key="index" :value="index">
+                {{ item.data }} | Total: R$ {{ item.total.toLocaleString('pt-BR') }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-actions">
+        <button @click="calcularIndices" class="btn-primary" :disabled="loading">
+          {{ loading ? 'Calculando...' : 'Gerar Dashboard' }}
+        </button>
+        <BtnExcel v-if="resLiquidez" :dados="dadosParaExportar" tipo="indicadores" class="btn-secondary"/>
+      </div>
+      
+    </div>
+
+    <div v-if="erro" class="msg-erro">{{ erro }}</div>
+
+    <div v-if="resLiquidez" class="dashboard-grid">
+      
+      <div class="kpi-card liquidity">
+        <div class="card-header">
+          <h3>💧 Liquidez</h3>
+          <span class="badge">Solvência</span>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-item">
+            <span class="label">Corrente</span>
+            <strong :class="getClassLiq(resLiquidez.indices.corrente)">{{ resLiquidez.indices.corrente }}</strong>
+            <small>Ativo Circ. / Passivo Circ.</small>
+          </div>
+          <div class="kpi-item">
+            <span class="label">Seca</span>
+            <strong :class="getClassLiq(resLiquidez.indices.seca)">{{ resLiquidez.indices.seca }}</strong>
+            <small>Sem Estoques</small>
+          </div>
+          <div class="kpi-item">
+            <span class="label">Imediata</span>
+            <strong :class="getClassLiq(resLiquidez.indices.imediata)">{{ resLiquidez.indices.imediata }}</strong>
+            <small>Disponível / PC</small>
+          </div>
+          <div class="kpi-item">
+            <span class="label">Geral</span>
+            <strong :class="getClassLiq(resLiquidez.indices.geral)">{{ resLiquidez.indices.geral }}</strong>
+            <small>Longo Prazo</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card profitability">
+        <div class="card-header">
+          <h3>📈 Rentabilidade</h3>
+          <span class="badge" v-if="resRentabilidade.meta_dados.usou_media">Média ✅</span>
+          <span class="badge warning" v-else>Simples ⚠️</span>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-item highlight">
+            <span class="label">ROI</span>
+            <strong :class="getClassRent(resRentabilidade.indices.roi)">{{ resRentabilidade.indices.roi }}%</strong>
+            <small>Retorno s/ Investimento</small>
+          </div>
+          <div class="kpi-item">
+            <span class="label">ROE</span>
+            <strong :class="getClassRent(resRentabilidade.indices.roe)">{{ resRentabilidade.indices.roe }}%</strong>
+            <small>Retorno s/ PL</small>
+          </div>
+          <div class="kpi-item">
+            <span class="label">ROA</span>
+            <strong :class="getClassRent(resRentabilidade.indices.roa)">{{ resRentabilidade.indices.roa }}%</strong>
+            <small>Retorno s/ Ativo</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card activity">
+        <div class="card-header">
+          <h3>🔄 Ciclos (Dias)</h3>
+          <span class="badge" v-if="resAtividade.meta_dados.usou_media">Média ✅</span>
+          <span class="badge warning" v-else>Simples ⚠️</span>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-item">
+            <span class="label">PME (Estoque)</span>
+            <strong>{{ resAtividade.indices.pme }}</strong>
+          </div>
+          <div class="kpi-item">
+            <span class="label">PMR (Receber)</span>
+            <strong>{{ resAtividade.indices.pmr }}</strong>
+          </div>
+          <div class="kpi-item">
+            <span class="label">PMP (Pagar)</span>
+            <strong>{{ resAtividade.indices.pmp }}</strong>
+          </div>
+        </div>
+        <div class="cycle-footer">
+          <div class="cycle-item">
+            <span>Ciclo Operacional:</span>
+            <strong>{{ resAtividade.indices.ciclo_operacional }} dias</strong>
+          </div>
+          <div class="cycle-item caixa" :class="getClassCiclo(resAtividade.indices.ciclo_caixa)">
+            <span>Ciclo de Caixa:</span>
+            <strong>{{ resAtividade.indices.ciclo_caixa }} dias</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card structure">
+        <div class="card-header">
+          <h3>⚖️ Estrutura</h3>
+          <span class="badge">Capital</span>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-item large">
+            <span class="label">Terceiros / Próprio</span>
+            <strong>{{ resEndividamento.indices.ct_cp }}x</strong>
+            <small>Dívida para cada R$1 próprio</small>
+          </div>
+          <div class="kpi-item large">
+            <span class="label">Part. Terceiros</span>
+            <strong :class="getClassEndiv(resEndividamento.indices.participacao_ct)">{{ resEndividamento.indices.participacao_ct }}%</strong>
+            <small>Dependência externa</small>
+          </div>
         </div>
       </div>
 
@@ -206,36 +275,119 @@ const getClassCiclo = (v) => v < 60 ? 'bom' : (v < 90 ? 'medio' : 'ruim')
 </template>
 
 <style scoped>
+/* CABEÇALHO */
 .header-pagina { text-align: center; margin-bottom: 30px; }
-.painel-selecao { background: white; padding: 30px; border-radius: 12px; border: 1px solid #e0e0e0; max-width: 600px; margin: 0 auto 40px auto; }
-.campo-select { margin-bottom: 20px; }
-.input-select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
+.header-pagina h2 { color: #2c3e50; margin: 0; font-size: 1.8rem; }
+.header-pagina p { color: #7f8c8d; margin-top: 5px; }
 
-/* Nova linha de botões */
-.actions-row { display: flex; gap: 15px; align-items: center; }
-.btn-calcular { flex: 2; padding: 15px; background: #2c3e50; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-.btn-calcular:hover { background: #34495e; transform: translateY(-2px); }
-.btn-exportar { flex: 1; height: 49px; justify-content: center; } /* Ajuste de altura */
+/* --- PAINEL DE CONTROLE (NOVO) --- */
+.control-panel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  padding: 20px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  border: 1px solid #edf2f7;
+}
 
-.msg-erro { margin-top: 15px; color: #c0392b; background: #ffeaea; padding: 10px; border-radius: 6px; text-align: center; }
+.panel-section { flex: 1; min-width: 250px; }
+.section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #718096; font-weight: 700; margin-bottom: 12px; }
 
-/* Grid de Resultados */
-.resultados-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: start; }
-.card-resultado { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e0e0e0; height: 100%; box-sizing: border-box; }
-.card-resultado h3 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; font-size: 1.1rem; }
-.indices-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.item-indice { text-align: center; background: #f9f9f9; padding: 10px; border-radius: 8px; }
-.item-indice.full-width { grid-column: span 2; }
-.item-indice .label { display: block; font-size: 0.8rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; }
-.item-indice .valor { font-size: 1.4rem; font-weight: 800; color: #2c3e50; }
-.item-indice .valor small { font-size: 0.8rem; font-weight: 400; color: #7f8c8d; }
+.inputs-row { display: flex; gap: 15px; }
+.input-group { flex: 1; }
+.input-group label { display: block; font-size: 0.9rem; color: #4a5568; margin-bottom: 6px; font-weight: 500; }
 
-.highlight-blue { background: #ebf8ff; border: 1px solid #bee3f8; }
-.highlight-green { background: #f0fff4; border: 1px solid #c6f6d5; }
+.select-wrapper select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #2d3748;
+  transition: border 0.2s;
+}
+.select-wrapper select:focus { border-color: #4299e1; outline: none; box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1); }
 
-.valor.bom { color: #27ae60; }
-.valor.medio { color: #f39c12; }
-.valor.ruim { color: #c0392b; }
+.panel-divider { width: 1px; background: #e2e8f0; margin: 0 10px; align-self: stretch; }
 
-@media (max-width: 600px) { .indices-list { grid-template-columns: 1fr; } .item-indice.full-width { grid-column: span 1; } }
+.panel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.btn-primary { background: #2c3e50; color: white; padding: 12px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-primary:hover { background: #34495e; transform: translateY(-1px); }
+.btn-primary:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+.btn-secondary { width: 100%; justify-content: center; font-size: 0.9rem; padding: 10px; }
+
+/* MENSAGEM DE ERRO */
+.msg-erro { background: #fff5f5; color: #c53030; padding: 15px; border-radius: 8px; margin-bottom: 30px; text-align: center; border: 1px solid #fed7d7; }
+
+/* --- GRID DO DASHBOARD (NOVO) --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+/* CARDS */
+.kpi-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Colorido */
+.card-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
+.card-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #2d3748; display: flex; align-items: center; gap: 8px; }
+
+/* Cores dos Headers */
+.liquidity .card-header { background: linear-gradient(to right, #ebf8ff, #fff); border-left: 5px solid #4299e1; }
+.profitability .card-header { background: linear-gradient(to right, #f0fff4, #fff); border-left: 5px solid #48bb78; }
+.activity .card-header { background: linear-gradient(to right, #faf5ff, #fff); border-left: 5px solid #9f7aea; }
+.structure .card-header { background: linear-gradient(to right, #fffaf0, #fff); border-left: 5px solid #ed8936; }
+
+.badge { font-size: 0.75rem; background: #e2e8f0; color: #4a5568; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
+.badge.warning { background: #feebc8; color: #c05621; }
+
+/* Conteúdo dos KPIs */
+.kpi-content { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1; }
+.kpi-item { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.kpi-item.large { grid-column: span 1; } 
+
+.kpi-item .label { font-size: 0.8rem; color: #a0aec0; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+.kpi-item strong { font-size: 1.6rem; color: #2d3748; font-weight: 800; line-height: 1.2; }
+.kpi-item small { font-size: 0.75rem; color: #cbd5e0; margin-top: 2px; }
+
+/* Footer de Ciclos */
+.cycle-footer { background: #f7fafc; padding: 15px; border-top: 1px solid #edf2f7; display: flex; flex-direction: column; gap: 8px; }
+.cycle-item { display: flex; justify-content: space-between; font-size: 0.9rem; color: #4a5568; }
+.cycle-item strong { color: #2d3748; }
+.cycle-item.caixa { margin-top: 5px; padding-top: 8px; border-top: 1px dashed #cbd5e0; font-weight: bold; }
+.cycle-item.caixa.text-green { color: #27ae60; }
+.cycle-item.caixa.text-red { color: #e53e3e; }
+
+/* Cores de Texto */
+.text-green { color: #38a169; }
+.text-orange { color: #dd6b20; }
+.text-red { color: #e53e3e; }
+
+/* Responsividade */
+@media (max-width: 900px) {
+  .control-panel { flex-direction: column; align-items: stretch; }
+  .panel-divider { height: 1px; width: 100%; margin: 15px 0; }
+  .inputs-row { flex-direction: column; }
+}
 </style>

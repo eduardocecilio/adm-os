@@ -8,11 +8,29 @@ import BtnExcel from '../../components/BtnExcel.vue'
 
 // --- Estado dos Dados ---
 const balanco = ref({
-  ativo_circulante: [{ id: 1, conta: 'Caixa e Equivalentes', valor: 0 }],
-  ativo_nao_circulante: [{ id: 2, conta: 'Imobilizado', valor: 0 }],
-  passivo_circulante: [{ id: 3, conta: 'Fornecedores', valor: 0 }],
-  passivo_nao_circulante: [{ id: 4, conta: 'Empréstimos Longo Prazo', valor: 0 }],
-  patrimonio_liquido: [{ id: 5, conta: 'Capital Social', valor: 0 }]
+  ativo_circulante: [
+    { id: 1, conta: opcoesBalanco.ac[0], valor: 0 },
+    { id: 2, conta: opcoesBalanco.ac[1], valor: 0 },
+    { id: 3, conta: opcoesBalanco.ac[2], valor: 0 },
+    { id: 4, conta: opcoesBalanco.ac[5], valor: 0 }
+  ],
+  ativo_nao_circulante: [
+    { id: 5, conta: opcoesBalanco.anc[0], valor: 0 },
+    //{ id: 6, conta: opcoesBalanco.anc[1], valor: 0 },
+    //{ id: 7, conta: opcoesBalanco.anc[2], valor: 0 }
+  ],
+  passivo_circulante: [
+    { id: 8, conta: opcoesBalanco.pc[0], valor: 0 },
+    { id: 9, conta: opcoesBalanco.pc[1], valor: 0 },
+    //{ id: 10, conta: opcoesBalanco.pc[2], valor: 0 }
+  ],
+  passivo_nao_circulante: [
+    { id: 11, conta: opcoesBalanco.pnc[0], valor: 0 }
+  ],
+  patrimonio_liquido: [
+    { id: 12, conta: opcoesBalanco.pl[0], valor: 0 },
+    //{ id: 13, conta: opcoesBalanco.pl[1], valor: 0 }
+  ]
 })
 
 const historico = ref([])

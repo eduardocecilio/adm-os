@@ -2,29 +2,56 @@
 import { ref, computed, onMounted } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
 import DropdownEditable from '../../components/DropdownEditable.vue'
+import BtnExcel from '../../components/BtnExcel.vue'
 import { menuContabilidade } from '../../constants/menus/menuContabilidade.js'
 import { opcoesDRE } from '../../constants/options/contabilidade.js'
-import BtnExcel from '../../components/BtnExcel.vue'
 
-// --- Estrutura de Dados (Espelho da Planilha) ---
+// --- Estrutura de Dados (Pré-preenchida com os itens obrigatórios *) ---
 const dre = ref({
-  receita_bruta: [{ id: 1, conta: 'Receita Bruta de Produtos', valor: 0 }],
-  deducoes: [{ id: 2, conta: 'Impostos sobre a Receita Bruta', valor: 0 }],
+  // Receita Bruta de Produtos (*) -> Index 0
+  receita_bruta: [
+    { id: 1, conta: opcoesDRE.receita[0], valor: 0 }
+  ],
   
-  // Custos
-  custos_producao: [{ id: 3, conta: 'Pessoal - CTO', valor: 0 }],
-  custos_venda: [{ id: 4, conta: 'CPV / CMV', valor: 0 }],
+  // Impostos sobre a Receita Bruta -> Index 0
+  deducoes: [
+    { id: 2, conta: opcoesDRE.deducoes[0], valor: 0 }
+  ],
   
-  // Despesas Operacionais
-  desp_comerciais: [{ id: 5, conta: 'Pessoal - CML', valor: 0 }],
-  desp_administrativas: [{ id: 6, conta: 'Pessoal - ADM', valor: 0 }],
-  outras_ops: [{ id: 7, conta: 'Outras Despesas Operacionais', valor: 0 }], // Pode ser +/-
+  // Serviços de Terceiros - CTO (*) -> Index 1
+  custos_producao: [
+    { id: 3, conta: opcoesDRE.custos_producao[1], valor: 0 }
+  ],
+  
+  // CPV / CMV (*) -> Index 1
+  custos_venda: [
+    { id: 4, conta: opcoesDRE.custos_venda[1], valor: 0 }
+  ],
+  
+  // Serviços de Terceiros - CML (*) -> Index 1
+  desp_comerciais: [
+    { id: 5, conta: opcoesDRE.desp_comerciais[1], valor: 0 }
+  ],
+  
+  // Serviços de Terceiros - ADM (*) -> Index 1
+  desp_administrativas: [
+    { id: 6, conta: opcoesDRE.desp_administrativas[1], valor: 0 }
+  ],
 
-  // Financeiro
-  financeiro: [{ id: 8, conta: 'Despesas Financeiras', valor: 0 }],
+  // Outras Despesas Operacionais -> Index 1
+  outras_ops: [
+    { id: 7, conta: opcoesDRE.outras_ops[1], valor: 0 } 
+  ],
+
+  // Despesas Financeiras -> Index 1
+  financeiro: [
+    { id: 8, conta: opcoesDRE.financeiro[1], valor: 0 }
+  ],
   
-  // Impostos
-  impostos: [{ id: 9, conta: 'Provisão para IR/CS', valor: 0 }]
+  // Provisão para IR/CS -> Index 1
+  impostos: [
+    { id: 9, conta: opcoesDRE.impostos[1], valor: 0 }
+  ]
 })
 
 const historico = ref([])
@@ -41,33 +68,30 @@ const addLinha = (grupo) => {
 const removeLinha = (grupo, index) => {
   dre.value[grupo].splice(index, 1)
 }
-// Helper que soma sempre usando Math.abs para garantir o comportamento matemático esperado
-// (Usuário digita 1000, nós tratamos como custo/despesa dependendo do bloco)
 const somar = (lista) => lista.reduce((acc, item) => acc + (Number(item.valor) || 0), 0)
 
 // --- CÁLCULOS (Fórmulas) ---
 
-// 1. Receita Líquida = Receita Bruta - Deduções
+// 1. Receita Líquida
 const totalReceitaBruta = computed(() => somar(dre.value.receita_bruta))
 const totalDeducoes = computed(() => somar(dre.value.deducoes))
 const receitaLiquida = computed(() => totalReceitaBruta.value - Math.abs(totalDeducoes.value))
 
-// 2. Lucro Bruto = Rec. Líquida - (Custos Produção + Custos Venda)
+// 2. Lucro Bruto
 const totalCustosProd = computed(() => somar(dre.value.custos_producao))
 const totalCustosVenda = computed(() => somar(dre.value.custos_venda))
 const lucroBruto = computed(() => receitaLiquida.value - Math.abs(totalCustosProd.value) - Math.abs(totalCustosVenda.value))
 
-// 3. Lucro Operacional = Lucro Bruto - (Comerciais + Adm + Outras)
+// 3. Lucro Operacional
 const totalComerciais = computed(() => somar(dre.value.desp_comerciais))
 const totalAdministrativas = computed(() => somar(dre.value.desp_administrativas))
-// Outras ops: assumimos que o usuário digita negativo para despesa e positivo para receita
 const totalOutrasOps = computed(() => somar(dre.value.outras_ops)) 
 
 const lucroOperacional = computed(() => 
   lucroBruto.value - Math.abs(totalComerciais.value) - Math.abs(totalAdministrativas.value) + totalOutrasOps.value
 )
 
-// 4. Lucro Antes IR (LAIR) = Operacional + Financeiro
+// 4. Lucro Antes IR (LAIR)
 const totalFinanceiro = computed(() => somar(dre.value.financeiro))
 const lucroAntesIR = computed(() => lucroOperacional.value + totalFinanceiro.value)
 

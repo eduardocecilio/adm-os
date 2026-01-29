@@ -5,8 +5,8 @@ from routers import exportar
 
 # --- IMPORTS DOS ROTEADORES ---
 from routers.investimentos import swing_trade
-# from routers.contabilidade import dre  <-- REMOVA OU COMENTE ESSA LINHA (Causa do erro)
-from routers.contabilidade import indicadores # <--- MANTENHA ESSA
+from routers.contabilidade import indicadores
+from routers.investimentos import mercado
 
 app = FastAPI()
 
@@ -36,10 +36,12 @@ def home():
 
 # --- REGISTRO DAS ROTAS ---
 app.include_router(swing_trade.router, dependencies=[Depends(verificar_token)])
-# app.include_router(dre.router, dependencies=[Depends(verificar_token)]) <-- REMOVA OU COMENTE ESTA LINHA
 
 # Rota de Indicadores
 app.include_router(indicadores.router, dependencies=[Depends(verificar_token)])
+
+# Rota de Mercado Financeiro
+app.include_router(mercado.router)
 
 # Rota de Exportação
 app.include_router(exportar.router, dependencies=[Depends(verificar_token)])
