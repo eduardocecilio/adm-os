@@ -67,9 +67,9 @@ Monitoramento em tempo real conectado a APIs financeiras globais.
 ### Passo a Passo Rápido
 
 1. **Clone o repositório:**
-   ```bash
-   git clone [https://github.com/seu-usuario/admin-os.git](https://github.com/seu-usuario/admin-os.git)
-   cd admin-os
+```bash
+git clone [https://github.com/seu-usuario/admin-os.git](https://github.com/seu-usuario/admin-os.git)
+cd admin-os
 
 ```
 
