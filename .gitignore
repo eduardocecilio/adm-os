@@ -189,3 +189,15 @@ Thumbs.db
 # --- BANCO DE DADOS LOCAL (Caso use SQLite no futuro) ---
 *.sqlite3
 *.db
+
+# --- ARQUIVOS DE DADOS / RELATÓRIOS GERADOS ---
+*.xlsx
+*.xls
+*.csv
+*.pdf
+
+# --- TESTES E QUALIDADE DE CÓDIGO PYTHON ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
