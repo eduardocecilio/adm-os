@@ -201,3 +201,88 @@ Thumbs.db
 .coverage
 htmlcov/
 .mypy_cache/
+
+# --- LOGS & DEBUG ---
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- NODE.JS / FRONTEND ---
+node_modules
+dist
+dist-ssr
+*.local
+.npm
+.eslintcache
+.stylelintcache
+.cache
+.parcel-cache
+
+# --- PYTHON / BACKEND ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- AMBIENTES VIRTUAIS (VENV) ---
+# Importante: Ignora a pasta venv tanto no Windows quanto Mac
+venv/
+.venv/
+env/
+.env/
+venv.bak/
+
+# --- AMBIENTE & SEGURANÇA (CRÍTICO) ---
+.env
+.env.*
+!.env.example
+
+# --- IDE / EDITOR ---
+.idea/
+.vscode/
+*.swp
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.DS_Store
+Thumbs.db
+
+# --- BANCO DE DADOS LOCAL ---
+# Ignora o banco SQLite para não sobrescrever dados reais
+*.sqlite3
+*.db
+*.sqlite
+
+# --- ARQUIVOS DE DADOS / EXPORTAÇÃO ---
+*.xlsx
+*.xls
+*.csv
+*.pdf
+
+# --- TESTES ---
+.pytest_cache/
+.coverage
+htmlcov/
