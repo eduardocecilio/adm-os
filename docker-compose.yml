@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  # Serviço da API (Python)
+  backend:
+    build: ./backend
+    container_name: admin-os-backend
+    ports:
+      - "8000:8000"
+    restart: always
+
+  # Serviço do Site (Vue + Nginx)
+  frontend:
+    build: ./frontend
+    container_name: admin-os-frontend
+    ports:
+      - "80:80" # No servidor, o site abrirá na porta padrão (80)
+    depends_on:
+      - backend
+    restart: always
