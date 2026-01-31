@@ -286,3 +286,92 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# --- LOGS & DEBUG ---
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- NODE.JS / FRONTEND ---
+node_modules
+dist
+dist-ssr
+*.local
+.npm
+.eslintcache
+.stylelintcache
+.cache
+.parcel-cache
+
+# --- PYTHON / BACKEND ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- AMBIENTES VIRTUAIS (CRÍTICO) ---
+# Ignora venv criada no Windows ou Mac/Linux
+venv/
+.venv/
+env/
+.env/
+venv.bak/
+
+# --- AMBIENTE & SEGURANÇA (CRÍTICO) ---
+.env
+.env.*
+!.env.example
+
+# --- IDE / EDITOR ---
+.idea/
+.vscode/
+*.swp
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# --- SISTEMA OPERACIONAL (WINDOWS/MAC) ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- BANCO DE DADOS LOCAL ---
+# Ignora o banco de dados local para não sobrescrever dados reais
+*.sqlite3
+*.db
+*.sqlite
+
+# --- ARQUIVOS DE DADOS / EXPORTAÇÃO ---
+*.xlsx
+*.xls
+*.csv
+*.pdf
+
+# --- TESTES ---
+.pytest_cache/
+.coverage
+htmlcov/
