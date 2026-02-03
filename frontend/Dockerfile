@@ -1,27 +1,37 @@
-# --- Etapa 1: Build ---
+# --- Etapa 1: Build (Construção do Vue) ---
 FROM node:18-alpine AS build
-
-# Instala dependências necessárias para compilação no Alpine
-RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# Garante permissões na pasta
-RUN chown -R node:node /app
-USER node
+# Copia os arquivos de dependência
+COPY package*.json ./
 
-COPY --chown=node:node package*.json ./
+# 1. TRUQUE DO MAC vs LINUX:
+# Apagamos o package-lock.json gerado no Mac para forçar o Linux 
+# a recalcular as dependências para a arquitetura dele.
+RUN rm -f package-lock.json
 
-# Instala TUDO (incluindo devDependencies como o Vite)
+# 2. Instalação Limpa
 RUN npm install
 
-COPY --chown=node:node . .
+# Copia o resto do código
+COPY . .
 
-# Comando de build com log detalhado para debug
+# 3. TRUQUE DA MEMÓRIA:
+# Se seu servidor for pequeno (ex: 1GB RAM), o Vite pode estourar a memória.
+# Isso garante que ele use o máximo disponível sem crashar.
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Compila para produção
 RUN npm run build
 
-# --- Etapa 2: Produção ---
+# --- Etapa 2: Produção (Servidor Nginx Leve) ---
 FROM nginx:alpine
+
+# Copia apenas os arquivos estáticos gerados na etapa anterior
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose padrão do Nginx
 EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]
