@@ -8,7 +8,7 @@ from routers.investimentos import swing_trade
 from routers.contabilidade import indicadores
 from routers.investimentos import mercado
 
-app = FastAPI()
+app = FastAPI(title="Adm OS")
 
 # Configuração de CORS
 app.add_middleware(
@@ -19,8 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Segurança
-API_TOKEN = "admin-os-segredo-2026"
+# Segurança (ATUALIZADO PARA O NOVO NOME)
+API_TOKEN = "seu_token_secreto"
 api_key_header = APIKeyHeader(name="x-token", auto_error=False)
 
 async def verificar_token(token: str = Depends(api_key_header)):
@@ -32,7 +32,7 @@ async def verificar_token(token: str = Depends(api_key_header)):
 
 @app.get("/")
 def home():
-    return {"status": "AdminOS Backend Online 🚀"}
+    return {"status": "Adm OS Backend Online 🚀"} # <--- MUDADO AQUI
 
 # --- REGISTRO DAS ROTAS ---
 app.include_router(swing_trade.router, dependencies=[Depends(verificar_token)])

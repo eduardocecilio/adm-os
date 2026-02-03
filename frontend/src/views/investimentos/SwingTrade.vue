@@ -18,7 +18,7 @@ async function calcularNoBackend() {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'x-token': 'admin-os-segredo-2026'
+        'x-token': 'seu_token_secreto'
       },
       body: JSON.stringify(form.value)
     })

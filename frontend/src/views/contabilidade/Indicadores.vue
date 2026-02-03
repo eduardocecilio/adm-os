@@ -98,7 +98,7 @@ const calcularIndices = async () => {
   loading.value = true
 
   try {
-    const headers = { 'Content-Type': 'application/json', 'x-token': 'admin-os-segredo-2026' }
+    const headers = { 'Content-Type': 'application/json', 'x-token': 'seu_token_secreto' }
     const body = JSON.stringify({ balanco: balancoObj, dre: dreObj, balanco_anterior: balancoAntObj })
 
     const [rL, rR, rE, rA] = await Promise.all([

@@ -16,7 +16,7 @@ const baixarExcel = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-token': 'admin-os-segredo-2026'
+        'x-token': 'seu_token_secreto'
       },
       body: JSON.stringify({
         dados: props.dados,

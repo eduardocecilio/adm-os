@@ -9,7 +9,7 @@ Este documento contém todas as instruções técnicas para configurar o ambient
 O projeto segue uma arquitetura separada em duas grandes pastas na raiz:
 
 ```bash
-admin-os/
+adm-os/
 ├── backend/            # API, Lógica de Negócios e Banco de Dados (Python)
 │   ├── routers/        # Rotas da API (Endpoints)
 │   ├── main.py         # Arquivo principal que inicia o servidor
@@ -135,7 +135,7 @@ O projeto utiliza **SQLite** para desenvolvimento local.
 ### Erro de Certificado SSL (Windows)
 
 Se o Yahoo Finance der erro `curl 77`, verifique se o caminho da pasta do projeto contém acentos ou espaços (ex: `Computação`).
-**Solução:** Mova o projeto para um caminho simples, ex: `C:\Projetos\admin-os`.
+**Solução:** Mova o projeto para um caminho simples, ex: `C:\Projetos\adm-os`.
 
 ### Erro "Script não pode ser carregado" (Windows)
 
