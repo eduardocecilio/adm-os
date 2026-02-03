@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# AQUI ESTÁ A MUDANÇA: de "admin_os.db" para "adm_os.db"
+# AQUI ESTÁ A MUDANÇA: de "adm_os.db" para "adm_os.db"
 SQLALCHEMY_DATABASE_URL = "sqlite:///./adm_os.db"
 
 engine = create_engine(

@@ -1,8 +1,8 @@
-# 📊 AdminOS - Inteligência Corporativa
+# 📊 AdmOS - Inteligência Corporativa
 
 > **Projeto Full Stack** unindo Administração Estratégica e Engenharia de Software.
 
-O **AdminOS** é uma plataforma de Business Intelligence (BI) projetada para centralizar a gestão financeira e contábil. O sistema oferece ferramentas avançadas para análise de balanços, DRE, indicadores de performance e monitoramento de mercado financeiro em tempo real.
+O **AdmOS** é uma plataforma de Business Intelligence (BI) projetada para centralizar a gestão financeira e contábil. O sistema oferece ferramentas avançadas para análise de balanços, DRE, indicadores de performance e monitoramento de mercado financeiro em tempo real.
 
 ![Status do Projeto](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow)
 ![Vue.js](https://img.shields.io/badge/Frontend-Vue.js_3-4FC08D)

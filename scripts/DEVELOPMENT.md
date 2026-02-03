@@ -1,4 +1,4 @@
-# 🛠️ Guia de Desenvolvimento - AdminOS
+# 🛠️ Guia de Desenvolvimento - AdmOS
 
 Este documento contém todas as instruções técnicas para configurar o ambiente, rodar o projeto e entender a estrutura de pastas, tanto para Windows quanto para macOS/Linux.
 
@@ -125,7 +125,7 @@ npm run dev
 
 O projeto utiliza **SQLite** para desenvolvimento local.
 
-* O arquivo do banco (`admin_os.db`) é criado automaticamente na pasta `backend/` ao rodar o projeto pela primeira vez.
+* O arquivo do banco (`adm_os.db`) é criado automaticamente na pasta `backend/` ao rodar o projeto pela primeira vez.
 * **Atenção:** Este arquivo está no `.gitignore`. Se você mudar de computador, terá um banco vazio no novo local.
 
 ---

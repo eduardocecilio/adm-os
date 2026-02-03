@@ -4,7 +4,7 @@
 cd "$(dirname "$0")/.."
 
 echo "=================================================="
-echo "🚀 INICIANDO ADMIN OS (MODO LINUX/MAC)"
+echo "🚀 INICIANDO ADM OS (MODO LINUX/MAC)"
 echo "=================================================="
 
 if [ ! -d "backend/venv" ]; then

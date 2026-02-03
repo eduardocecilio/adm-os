@@ -6,7 +6,7 @@ const router = useRouter()
 <template>
   <div class="dashboard">
     <header>
-      <h1>AdminOS</h1>
+      <h1>AdmOS</h1>
       <p class="subtitle">Sistema de Inteligência Corporativa</p>
     </header>
     

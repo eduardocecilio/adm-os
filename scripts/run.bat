@@ -1,11 +1,11 @@
 @echo off
-TITLE AdminOS Launcher
+TITLE AdmOS Launcher
 
 :: Vai para a raiz do projeto (volta um nível)
 cd ..
 
 echo ==================================================
-echo 🚀 INICIANDO ADMIN OS (MODO WINDOWS)
+echo 🚀 INICIANDO ADM OS (MODO WINDOWS)
 echo ==================================================
 echo.
 
@@ -17,7 +17,7 @@ if not exist "backend\venv" (
 )
 
 echo [1/2] Ligando API (Python/FastAPI)...
-start "AdminOS - Backend API" cmd /k "cd backend && venv\Scripts\activate && uvicorn main:app --reload --port 8000"
+start "AdmOS - Backend API" cmd /k "cd backend && venv\Scripts\activate && uvicorn main:app --reload --port 8000"
 
 echo [2/2] Ligando Interface (Vue.js)...
 cd frontend
