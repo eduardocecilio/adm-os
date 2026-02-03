@@ -1,20 +1,26 @@
 version: '3.8'
 
 services:
-  # Serviço da API (Python)
   backend:
     build: ./backend
     container_name: adm-os-backend
     ports:
       - "8000:8000"
+    volumes:
+      - adm_os_data:/data
+    environment:
+      - API_TOKEN=${API_TOKEN}
+      - DATABASE_URL=sqlite:////data/adm_os.db
     restart: always
 
-  # Serviço do Site (Vue + Nginx)
   frontend:
     build: ./frontend
     container_name: adm-os-frontend
     ports:
-      - "80:80" # No servidor, o site abrirá na porta padrão (80)
+      - "8082:80" # Porta 8082 liberada para acesso externo
     depends_on:
       - backend
     restart: always
+
+volumes:
+  adm_os_data:
