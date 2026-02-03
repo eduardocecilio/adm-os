@@ -21,10 +21,13 @@ const dados = ref({
 
 // --- CARREGAMENTO ---
 const carregarDadosMercado = async (periodo) => {
-  // Nota: Não ativamos 'loading' global para não fechar o modal ou piscar a tela
-  // Apenas atualizamos os dados reativamente
   try {
-    const resp = await fetch(`http://127.0.0.1:8001/investimentos/mercado/resumo?periodo=${periodo}`)
+    // 1. Pegamos a URL da variável de ambiente que você criou nos arquivos .env
+    const baseURL = import.meta.env.VITE_API_URL;
+
+    // 2. Usamos a baseURL aqui (usando crase ` e não aspas ')
+    const resp = await fetch(`${baseURL}/investimentos/mercado/resumo?periodo=${periodo}`)
+    
     if (!resp.ok) throw new Error("Offline")
     const json = await resp.json()
 
