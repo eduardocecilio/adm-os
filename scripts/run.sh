@@ -15,7 +15,7 @@ fi
 echo "[1/2] Ligando API..."
 source backend/venv/bin/activate
 cd backend
-uvicorn main:app --reload --port 8000 &
+uvicorn main:app --reload --port 8001 &
 BACKEND_PID=$!
 cd ..
 

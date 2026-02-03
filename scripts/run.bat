@@ -17,7 +17,7 @@ if not exist "backend\venv" (
 )
 
 echo [1/2] Ligando API (Python/FastAPI)...
-start "AdmOS - Backend API" cmd /k "cd backend && venv\Scripts\activate && uvicorn main:app --reload --port 8000"
+start "AdmOS - Backend API" cmd /k "cd backend && venv\Scripts\activate && uvicorn main:app --reload --port 8001"
 
 echo [2/2] Ligando Interface (Vue.js)...
 cd frontend

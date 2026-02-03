@@ -24,7 +24,7 @@ const carregarDadosMercado = async (periodo) => {
   // Nota: Não ativamos 'loading' global para não fechar o modal ou piscar a tela
   // Apenas atualizamos os dados reativamente
   try {
-    const resp = await fetch(`http://127.0.0.1:8000/investimentos/mercado/resumo?periodo=${periodo}`)
+    const resp = await fetch(`http://127.0.0.1:8001/investimentos/mercado/resumo?periodo=${periodo}`)
     if (!resp.ok) throw new Error("Offline")
     const json = await resp.json()
 

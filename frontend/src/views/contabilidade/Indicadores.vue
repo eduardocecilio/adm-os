@@ -102,10 +102,10 @@ const calcularIndices = async () => {
     const body = JSON.stringify({ balanco: balancoObj, dre: dreObj, balanco_anterior: balancoAntObj })
 
     const [rL, rR, rE, rA] = await Promise.all([
-      fetch('http://127.0.0.1:8000/contabilidade/indicadores/liquidez', { method: 'POST', headers, body }),
-      fetch('http://127.0.0.1:8000/contabilidade/indicadores/rentabilidade', { method: 'POST', headers, body }),
-      fetch('http://127.0.0.1:8000/contabilidade/indicadores/endividamento', { method: 'POST', headers, body }),
-      fetch('http://127.0.0.1:8000/contabilidade/indicadores/atividade', { method: 'POST', headers, body })
+      fetch('http://127.0.0.1:8001/contabilidade/indicadores/liquidez', { method: 'POST', headers, body }),
+      fetch('http://127.0.0.1:8001/contabilidade/indicadores/rentabilidade', { method: 'POST', headers, body }),
+      fetch('http://127.0.0.1:8001/contabilidade/indicadores/endividamento', { method: 'POST', headers, body }),
+      fetch('http://127.0.0.1:8001/contabilidade/indicadores/atividade', { method: 'POST', headers, body })
     ])
 
     if (!rL.ok) throw new Error("Erro Backend.")

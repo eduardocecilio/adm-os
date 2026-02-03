@@ -14,7 +14,7 @@ const resultado = ref(null)
 
 async function calcularNoBackend() {
   try {
-    const resposta = await fetch('http://127.0.0.1:8000/investimentos/swing-trade/calcular', {
+    const resposta = await fetch('http://127.0.0.1:8001/investimentos/swing-trade/calcular', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',

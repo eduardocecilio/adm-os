@@ -12,7 +12,7 @@ const loading = ref(false)
 const baixarExcel = async () => {
   loading.value = true
   try {
-    const response = await fetch('http://127.0.0.1:8000/exportar/excel', {
+    const response = await fetch('http://127.0.0.1:8001/exportar/excel', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
