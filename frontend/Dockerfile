@@ -1,30 +1,18 @@
-# --- Etapa 1: Build (Construção do Vue) ---
-# Atualizado para Node 20 para suportar Vite v7+
+# --- Etapa 1: Build ---
 FROM node:20-alpine AS build
-
 WORKDIR /app
-
-# Copia arquivos de dependência
 COPY package*.json ./
-
-# Limpeza de segurança para evitar conflitos Mac vs Linux
-RUN rm -f package-lock.json
-
-# Instalação completa das dependências
-RUN npm install
-
-# Copia o resto do código
+RUN rm -f package-lock.json && npm install
 COPY . .
-
-# Compila para produção
+# Se o .env não estiver no git, descomente a linha abaixo para injetar a URL:
+# ENV VITE_API_URL=https://api-adm.ceciliolab.com
 RUN npm run build
 
-# --- Etapa 2: Produção (Servidor Nginx Leve) ---
+# --- Etapa 2: Produção ---
 FROM nginx:alpine
-
-# Copia os arquivos estáticos gerados
+# Copia o seu nginx.conf personalizado
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copia os arquivos gerados no build
 COPY --from=build /app/dist /usr/share/nginx/html
-
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
