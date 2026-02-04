@@ -104,7 +104,7 @@ loading.value = true
     // 2. Headers Centralizados
     const headers = { 
       'Content-Type': 'application/json', 
-      'x-token': 'seu_token_secreto' 
+      'x-token': import.meta.env.VITE_API_TOKEN 
     }
     const body = JSON.stringify({ balanco: balancoObj, dre: dreObj, balanco_anterior: balancoAntObj })
 

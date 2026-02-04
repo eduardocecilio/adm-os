@@ -2,6 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
 from routers import exportar
+import os
+from dotenv import load_dotenv
 
 # --- IMPORTS DOS ROTEADORES ---
 from routers.investimentos import swing_trade
@@ -19,12 +21,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Segurança (ATUALIZADO PARA O NOVO NOME)
-API_TOKEN = "seu_token_secreto"
+load_dotenv()
+
+API_TOKEN = os.getenv("API_TOKEN")
 api_key_header = APIKeyHeader(name="x-token", auto_error=False)
 
 async def verificar_token(token: str = Depends(api_key_header)):
-    if token != API_TOKEN:
+    if not token or token != API_TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido ou ausente"

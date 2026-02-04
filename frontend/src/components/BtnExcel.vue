@@ -12,11 +12,15 @@ const loading = ref(false)
 const baixarExcel = async () => {
   loading.value = true
   try {
-    const response = await fetch('http://127.0.0.1:8001/exportar/excel', {
+    // 1. URL Dinâmica com Fallback
+    const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
+
+    const response = await fetch(`${baseURL}/exportar/excel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-token': 'seu_token_secreto'
+        // 2. Token vindo das variáveis de ambiente (.env)
+        'x-token': import.meta.env.VITE_API_TOKEN
       },
       body: JSON.stringify({
         dados: props.dados,
@@ -24,7 +28,10 @@ const baixarExcel = async () => {
       })
     })
 
-    if (!response.ok) throw new Error("Erro ao gerar arquivo")
+    if (!response.ok) {
+      if (response.status === 401) throw new Error("Não autorizado.");
+      throw new Error("Erro ao gerar arquivo no servidor.");
+    }
 
     // 1. Converte a resposta em BLOB (Arquivo Binário)
     const blob = await response.blob()
@@ -33,7 +40,7 @@ const baixarExcel = async () => {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = props.nomeArquivo // Nome do arquivo final
+    a.download = props.nomeArquivo 
     document.body.appendChild(a)
     
     // 3. Clica no link e remove
@@ -58,8 +65,9 @@ const baixarExcel = async () => {
 </template>
 
 <style scoped>
+/* Estilos mantidos - estão ótimos! */
 .btn-excel {
-  background-color: #217346; /* Cor verde Excel */
+  background-color: #217346; 
   color: white;
   border: none;
   padding: 10px 20px;

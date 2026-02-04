@@ -6,6 +6,8 @@ import { menuInvestimentos } from '../../constants/menus/menuInvestimentos.js'
 // URL Dinâmica com Fallback para evitar 'undefined'
 const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
 
+const formatMoney = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
 const form = ref({
   preco_compra: 0,
   preco_venda: 0,
@@ -21,13 +23,17 @@ async function calcularNoBackend() {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'x-token': 'seu_token_secreto'
+        'x-token': import.meta.env.VITE_API_TOKEN
       },
       body: JSON.stringify(form.value)
     })
     
-    if (!resposta.ok) throw new Error("Erro na autorização ou servidor offline")
-    
+    if (!resposta.ok) {
+      if (resposta.status === 401) throw new Error("Token de segurança inválido.");
+      if (resposta.status === 404) throw new Error("Rota de cálculo não encontrada.");
+      throw new Error("Erro interno no servidor.");
+    }
+
     const dados = await resposta.json()
     resultado.value = dados 
   } catch (erro) {
@@ -74,21 +80,21 @@ async function calcularNoBackend() {
             
             <div class="resumo-item lucro">
               <span>Lucro Líquido</span>
-              <strong>R$ {{ resultado.resumo.lucro_liquido }}</strong>
+              <strong>R$ {{ formatMoney(resultado.resumo.lucro_liquido) }}</strong>
             </div>
             
             <div class="detalhes">
               <div class="linha">
                 <span>Imposto de Renda</span>
-                <span>R$ {{ resultado.resumo.imposto_renda }}</span>
+                <span>R$ {{ formatMoney(resultado.resumo.imposto_renda) }}</span>
               </div>
               <div class="linha">
                 <span>Custos Totais</span>
-                <span>R$ {{ resultado.resumo.custos_totais }}</span>
+                <span>R$ {{ formatMoney(resultado.resumo.custos_totais) }}</span>
               </div>
               <div class="linha destaque-bruto">
                 <span>Lucro Bruto</span>
-                <span>R$ {{ resultado.resumo.lucro_bruto }}</span>
+                <span>R$ {{ formatMoney(resultado.resumo.lucro_bruto) }}</span>
               </div>
             </div>
           </div>

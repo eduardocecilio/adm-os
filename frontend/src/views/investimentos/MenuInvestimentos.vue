@@ -22,21 +22,19 @@ const dados = ref({
 // --- CARREGAMENTO ---
 const carregarDadosMercado = async (periodo) => {
   try {
-    // 1. Definição da URL com Fallback (evita o erro 'undefined')
     const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
 
-    // 2. Chamada Fetch com o Header de Segurança (x-token)
     const resp = await fetch(`${baseURL}/investimentos/mercado/resumo?periodo=${periodo}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'x-token': 'seu_token_secreto' // O Token que seu backend exige
+        'x-token': import.meta.env.VITE_API_TOKEN
       }
     });
     
     if (!resp.ok) {
-        if (resp.status === 401) throw new Error("Não autorizado (Token inválido)");
-        throw new Error("Erro na resposta do servidor");
+        if (resp.status === 401) throw new Error("Acesso negado.");
+        throw new Error("Servidor de mercado offline.");
     }
 
     const json = await resp.json();
@@ -46,10 +44,11 @@ const carregarDadosMercado = async (periodo) => {
     dados.value.dolar = { ...json.dolar, loading: false }
     dados.value.euro = { ...json.euro, loading: false }
     dados.value.btc = { brl: json.btc.brl, usd: json.btc.usd, loading: false }
-    dados.value.selic = { ...json.selic, loading: false }
-    dados.value.ipca = { ...json.ipca, loading: false }
     
-    // Atualiza o modal se estiver aberto
+    // Pequeno ajuste para garantir que Selic e IPCA venham formatados se forem números
+    dados.value.selic = { ...json.selic, valor: typeof json.selic.valor === 'number' ? formatPercent(json.selic.valor) : json.selic.valor, loading: false }
+    dados.value.ipca = { ...json.ipca, valor: typeof json.ipca.valor === 'number' ? formatPercent(json.ipca.valor) : json.ipca.valor, loading: false }
+    
     if (modalAberto.value) {
       if (tituloModal.value.includes('Dólar')) dadosModal.value = dados.value.dolar
       if (tituloModal.value.includes('Euro')) dadosModal.value = dados.value.euro
@@ -59,7 +58,7 @@ const carregarDadosMercado = async (periodo) => {
 
   } catch (e) {
     console.error("Erro na API:", e);
-    erro.value = "Erro ao atualizar mercado: " + e.message;
+    erro.value = e.message;
   } finally {
     loading.value = false
   }
