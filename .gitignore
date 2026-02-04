@@ -42,17 +42,21 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# --- AMBIENTES VIRTUAIS (CRÍTICO) ---
-# Ignora venv criada no Windows ou Mac/Linux
+# --- AMBIENTES VIRTUAIS (NUNCA ENVIAR) ---
 venv/
 .venv/
 env/
-.env/
 venv.bak/
 
-# --- AMBIENTE & SEGURANÇA (CRÍTICO) ---
+# --- AMBIENTE & SEGURANÇA ---
+# Bloqueia o .env genérico e arquivos locais com senhas
 .env
-.env.*
+.env.local
+.env.*.local
+
+# PERMITE os arquivos de configuração de ambiente do Frontend
+!.env.development
+!.env.production
 !.env.example
 
 # --- IDE / EDITOR ---
