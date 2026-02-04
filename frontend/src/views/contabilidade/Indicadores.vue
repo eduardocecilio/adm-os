@@ -95,19 +95,20 @@ const calcularIndices = async () => {
     pl: { valor: atualPL, history: histPL }
   }
 
-  loading.value = true
+loading.value = true
 
   try {
-    // URL Dinâmica
+    // 1. URL Dinâmica com Fallback
     const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
     
+    // 2. Headers Centralizados
     const headers = { 
       'Content-Type': 'application/json', 
       'x-token': 'seu_token_secreto' 
     }
     const body = JSON.stringify({ balanco: balancoObj, dre: dreObj, balanco_anterior: balancoAntObj })
 
-    // Agora todas as chamadas usam a baseURL correta
+    // 3. Chamadas Paralelas
     const [rL, rR, rE, rA] = await Promise.all([
       fetch(`${baseURL}/contabilidade/indicadores/liquidez`, { method: 'POST', headers, body }),
       fetch(`${baseURL}/contabilidade/indicadores/rentabilidade`, { method: 'POST', headers, body }),
@@ -115,9 +116,13 @@ const calcularIndices = async () => {
       fetch(`${baseURL}/contabilidade/indicadores/atividade`, { method: 'POST', headers, body })
     ])
 
-    // Verifica se a primeira falhou (geralmente todas falham juntas se for erro de token ou URL)
-    if (!rL.ok) throw new Error(`Falha na requisição (Status: ${rL.status})`)
+    // 4. Verificação de Integridade (Se o Token falhar, o status será 401)
+    if (!rL.ok) {
+      if (rL.status === 401) throw new Error("Acesso não autorizado (Token inválido)");
+      throw new Error(`Erro no Backend (Status: ${rL.status})`);
+    }
 
+    // 5. Atribuição dos resultados
     resLiquidez.value = await rL.json()
     resRentabilidade.value = await rR.json()
     resEndividamento.value = await rE.json()
