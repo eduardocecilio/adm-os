@@ -98,17 +98,25 @@ const calcularIndices = async () => {
   loading.value = true
 
   try {
-    const headers = { 'Content-Type': 'application/json', 'x-token': 'seu_token_secreto' }
+    // URL Dinâmica
+    const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
+    
+    const headers = { 
+      'Content-Type': 'application/json', 
+      'x-token': 'seu_token_secreto' 
+    }
     const body = JSON.stringify({ balanco: balancoObj, dre: dreObj, balanco_anterior: balancoAntObj })
 
+    // Agora todas as chamadas usam a baseURL correta
     const [rL, rR, rE, rA] = await Promise.all([
-      fetch('http://127.0.0.1:8001/contabilidade/indicadores/liquidez', { method: 'POST', headers, body }),
-      fetch('http://127.0.0.1:8001/contabilidade/indicadores/rentabilidade', { method: 'POST', headers, body }),
-      fetch('http://127.0.0.1:8001/contabilidade/indicadores/endividamento', { method: 'POST', headers, body }),
-      fetch('http://127.0.0.1:8001/contabilidade/indicadores/atividade', { method: 'POST', headers, body })
+      fetch(`${baseURL}/contabilidade/indicadores/liquidez`, { method: 'POST', headers, body }),
+      fetch(`${baseURL}/contabilidade/indicadores/rentabilidade`, { method: 'POST', headers, body }),
+      fetch(`${baseURL}/contabilidade/indicadores/endividamento`, { method: 'POST', headers, body }),
+      fetch(`${baseURL}/contabilidade/indicadores/atividade`, { method: 'POST', headers, body })
     ])
 
-    if (!rL.ok) throw new Error("Erro Backend.")
+    // Verifica se a primeira falhou (geralmente todas falham juntas se for erro de token ou URL)
+    if (!rL.ok) throw new Error(`Falha na requisição (Status: ${rL.status})`)
 
     resLiquidez.value = await rL.json()
     resRentabilidade.value = await rR.json()
@@ -118,6 +126,7 @@ const calcularIndices = async () => {
     dashboardGerado.value = true
 
   } catch (e) {
+    console.error("Erro no fetch de indicadores:", e)
     erro.value = "Erro: " + e.message
   } finally {
     loading.value = false

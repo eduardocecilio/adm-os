@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
 import { menuInvestimentos } from '../../constants/menus/menuInvestimentos.js'
 
+// URL Dinâmica com Fallback para evitar 'undefined'
+const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
+
 const form = ref({
   preco_compra: 0,
   preco_venda: 0,
@@ -14,7 +17,7 @@ const resultado = ref(null)
 
 async function calcularNoBackend() {
   try {
-    const resposta = await fetch('http://127.0.0.1:8001/investimentos/swing-trade/calcular', {
+    const resposta = await fetch(`${baseURL}/investimentos/swing-trade/calcular`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -22,10 +25,14 @@ async function calcularNoBackend() {
       },
       body: JSON.stringify(form.value)
     })
+    
+    if (!resposta.ok) throw new Error("Erro na autorização ou servidor offline")
+    
     const dados = await resposta.json()
     resultado.value = dados 
   } catch (erro) {
-    alert("Erro ao conectar com o servidor.")
+    console.error(erro)
+    alert("Erro ao conectar com o servidor: " + erro.message)
   }
 }
 </script>
