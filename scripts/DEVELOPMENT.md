@@ -4,30 +4,6 @@ Este documento contém todas as instruções técnicas para configurar o ambient
 
 ---
 
-## 📂 Estrutura do Projeto (Monorepo)
-
-O projeto segue uma arquitetura separada em duas grandes pastas na raiz:
-
-```bash
-adm-os/
-├── backend/            # API, Lógica de Negócios e Banco de Dados (Python)
-│   ├── routers/        # Rotas da API (Endpoints)
-│   ├── main.py         # Arquivo principal que inicia o servidor
-│   ├── database.py     # Conexão com Banco de Dados (SQLite/Postgres)
-│   └── models.py       # Tabelas do Banco de Dados
-│
-├── frontend/           # Interface Visual (Vue.js + Vite)
-│   ├── src/views/      # Telas do sistema (Investimentos, Contabilidade)
-│   ├── src/services/   # Comunicação com o Backend
-│   └── package.json    # Dependências do Node.js
-│
-├── run.bat             # Script de inicialização rápida (Windows)
-└── run.sh              # Script de inicialização rápida (Mac/Linux)
-
-```
-
----
-
 ## ⚙️ Configuração Inicial (Primeira vez)
 
 Antes de rodar, você precisa instalar as dependências.

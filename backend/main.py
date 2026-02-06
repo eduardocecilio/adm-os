@@ -10,12 +10,23 @@ from routers.investimentos import swing_trade
 from routers.contabilidade import indicadores
 from routers.investimentos import mercado
 
-app = FastAPI(title="Adm OS")
+app = FastAPI(
+    title="Adm OS",
+    docs_url=None if os.getenv("ENV") == "production" else "/docs",
+    redoc_url=None
+)
+
+# Adicione localhost para testes no Mac e sua URL oficial para produção
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://adm.ceciliolab.com"
+]
 
 # Configuração de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
