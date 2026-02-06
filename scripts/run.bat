@@ -1,17 +1,20 @@
 @echo off
 TITLE AdmOS Launcher
 
-:: Vai para a raiz do projeto (volta um nível)
-cd ..
+:: Esta linha garante que o script saiba onde está a pasta raiz, independente de onde foi chamado
+set ROOT_DIR=%~dp0..
+cd /d "%ROOT_DIR%"
 
 echo ==================================================
-echo 🚀 INICIANDO ADM OS (MODO WINDOWS)
+echo * INICIANDO ADM OS (MODO WINDOWS)
 echo ==================================================
+echo Local: %CD%
 echo.
 
-:: Agora estamos na raiz, o resto funciona igual
+:: Verifica se a venv existe na pasta correta
 if not exist "backend\venv" (
-    echo [ERRO] A pasta 'venv' nao foi encontrada no backend.
+    echo [ERRO] A pasta 'venv' nao foi encontrada em: %CD%\backend\venv
+    echo [DICA] Rode: python -m venv backend\venv
     pause
     exit
 )
