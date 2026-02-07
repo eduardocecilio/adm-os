@@ -1,43 +1,40 @@
 # 🛠️ Guia de Desenvolvimento - AdmOS
 
-Este documento contém todas as instruções técnicas para configurar o ambiente, rodar o projeto e entender a estrutura de pastas, tanto para Windows quanto para macOS/Linux.
+Este guia centraliza as instruções para manter o ambiente de desenvolvimento consistente entre sistemas (Windows/macOS) e garantir a integridade da stack.
 
 ---
 
-## ⚙️ Configuração Inicial (Primeira vez)
+## ⚙️ Configuração do Ambiente
 
-Antes de rodar, você precisa instalar as dependências.
+### 1. Requisitos de Sistema
 
-### 1. Pré-requisitos
+* **Node.js**: v18+ (LTS recomendado)
+* **Python**: v3.12 (Recomendado para evitar conflitos de bibliotecas como Pandas/Numpy)
 
-* **Node.js** (v18 ou superior)
-* **Python** (v3.10 ou superior)
+### 2. Backend (FastAPI)
 
-### 2. Configurando o Backend (Python)
+O backend gerencia a lógica de negócio e integrações financeiras.
 
-**Windows (PowerShell):**
+**Setup Inicial:**
 
 ```powershell
+# Windows
 cd backend
 python -m venv venv
 .\venv\Scripts\activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 
-```
-
-**Mac / Linux:**
-
-```bash
+# macOS / Linux
 cd backend
 python3 -m venv venv
 source venv/bin/activate
+python3 -m pip install --upgrade pip
 pip install -r requirements.txt
 
 ```
 
-### 3. Configurando o Frontend (Node.js)
-
-**Qualquer Sistema:**
+### 3. Frontend (Vue.js)
 
 ```bash
 cd frontend
@@ -47,92 +44,51 @@ npm install
 
 ---
 
-## 🚀 Como Rodar o Projeto (Dia a Dia)
+## 🚀 Fluxo de Trabalho Diário
 
-Existem duas formas de rodar: usando os scripts automáticos (recomendado) ou manualmente.
+### Execução Local
 
-### Opção A: Modo Automático (Recomendado)
+Para rodar o projeto, utilize o servidor de desenvolvimento do Vite e o modo reload do Uvicorn:
 
-Estes scripts abrem o Backend e o Frontend simultaneamente.
+* **Backend:** `uvicorn main:app --reload --port 8001`
+* **Frontend:** `npm run dev`
 
-* **No Windows:** Dê dois cliques no arquivo `run.bat` na raiz ou digite no terminal:
-```powershell
-.\run.bat
+### Higiene de Dependências
 
-```
-
-
-* **No Mac / Linux:** No terminal, digite:
-```bash
-./run.sh
-
-```
-
-
-
-### Opção B: Modo Manual
-
-Se precisar rodar separadamente para ver logs de erro específicos:
-
-**Terminal 1 (Backend):**
+Sempre que instalar um novo pacote no Python (ex: `slowapi` ou `openpyxl`), atualize o manifesto imediatamente para que o **Portainer** possa refletir as mudanças no servidor:
 
 ```bash
-cd backend
-# Windows:
-.\venv\Scripts\activate
-# Mac:
-source venv/bin/activate
-
-uvicorn main:app --reload
-
-```
-
-**Terminal 2 (Frontend):**
-
-```bash
-cd frontend
-npm run dev
+pip freeze > requirements.txt
 
 ```
 
 ---
 
-## 📦 Banco de Dados (SQLite)
+## ⚠️ Troubleshooting (Solução de Problemas)
 
-O projeto utiliza **SQLite** para desenvolvimento local.
+### Erros de Compilação (Windows)
 
-* O arquivo do banco (`adm_os.db`) é criado automaticamente na pasta `backend/` ao rodar o projeto pela primeira vez.
-* **Atenção:** Este arquivo está no `.gitignore`. Se você mudar de computador, terá um banco vazio no novo local.
+Se encontrar erros de `subprocess-exited-with-error` ao instalar **Pandas** ou **Numpy**:
 
----
+1. Certifique-se de que não está usando Python experimental (v3.13 ou v3.14).
+2. Remova as versões fixas do `requirements.txt` para que o `pip` busque os arquivos pré-compilados (Wheels).
 
-## ⚠️ Solução de Problemas Comuns
+### Erro de PATH / SSL (Windows)
 
-### Erro de Certificado SSL (Windows)
+Evite pastas com acentos (ex: `Computação`). O Python e o `curl_cffi` podem falhar ao localizar certificados SSL em caminhos com caracteres especiais.
 
-Se o Yahoo Finance der erro `curl 77`, verifique se o caminho da pasta do projeto contém acentos ou espaços (ex: `Computação`).
-**Solução:** Mova o projeto para um caminho simples, ex: `C:\Projetos\adm-os`.
+* **Recomendação:** `C:\Projetos\adm-os`
 
-### Erro "Script não pode ser carregado" (Windows)
+### Erro de Execução de Scripts (PowerShell)
 
-Se ao ativar a venv der erro de permissão.
-**Solução:** Rode no PowerShell: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
-
-### Erro "Vite não reconhecido"
-
-Isso ocorre se você clonou o projeto mas não instalou as dependências do front.
-**Solução:** Entre na pasta `frontend` e rode `npm install`.
-
-```
+Se não conseguir ativar a `venv`:
+`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 
 ---
 
-### O que melhoramos aqui?
+## 🔒 Segurança em Desenvolvimento
 
-1.  **Profissionalismo:** Mudamos de "uma lista de comandos" para um "Guia de Desenvolvimento".
-2.  **Cross-Platform:** Agora serve tanto para o seu Mac quanto para o Windows que você está usando agora.
-3.  **Troubleshooting:** Adicionei a seção de "Solução de Problemas" com o erro do acento ("Computação") e do SSL que acabamos de resolver. Isso é **ouro** para documentação. Se você esquecer daqui a 3 meses, está escrito lá.
+* **Variáveis de Ambiente:** Nunca remova a entrada `.env` do arquivo `.gitignore`.
+* **CORS:** O arquivo `main.py` está configurado para aceitar `localhost` e o domínio oficial. Caso mude a porta do Vite, atualize a lista de `origins`.
 
-Pode criar esse arquivo, dar o commit e o push! 🚀
-
-```
+---
