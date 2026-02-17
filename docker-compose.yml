@@ -4,8 +4,8 @@ services:
   backend:
     build: ./backend
     container_name: adm-os-backend
-    ports:
-      - "8001:8000"
+    # ports:
+    #   - "8001:8000"
     volumes:
       - adm_os_data:/data
     environment:
