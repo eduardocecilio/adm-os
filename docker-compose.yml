@@ -8,9 +8,10 @@ services:
     #   - "8001:8000" (Removed to secure backend)
     volumes:
       - adm_os_data:/data
-    env_file:
-      - ./backend/.env
+    # env_file:
+    #   - ./backend/.env
     environment:
+      - API_TOKEN=${API_TOKEN}
       - DATABASE_URL=sqlite:////data/adm_os.db
     restart: always
 
