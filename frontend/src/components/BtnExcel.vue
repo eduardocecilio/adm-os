@@ -3,63 +3,67 @@ import { ref } from 'vue'
 
 const props = defineProps({
   dados: { type: Object, required: true }, // O objeto do Balanço ou DRE
-  tipo: { type: String, required: true },  // "balanco" ou "dre"
-  nomeArquivo: { type: String, default: 'relatorio.xlsx' }
+  dados: { type: Object, required: true },
+  tipo: { type: String, default: 'geral' } // 'geral', 'balanco', 'dre', 'indicadores'
 })
 
-const loading = ref(false)
+const baixando = ref(false)
 
-const baixarExcel = async () => {
-  loading.value = true
+const downloadExcel = async () => {
+  if (!props.dados) return
+  baixando.value = true
+
   try {
-    // 1. URL Dinâmica com Fallback
-    const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
-
+    // Usando api.js com opção de retornar o blob diretamente
+    // Note: api.js might need adjustment to handle non-JSON responses if it defaults to response.json()
+    // Let's check api.js again.
+    // api.js uses response.json() by default. We need to pass a flag or handle it.
+    // Let's look at api.js again to be sure.
+    // It returns response.json().
+    // I should probably modify api.js to handle blobs or just use fetch here with the correct URL from api.js export?
+    // standard api.js usually returns json.
+    // Let's update api.js to support blob or just use the relative URL logic here.
+    // Actually, let's keep it simple and use the relative URL logic here for now, OR update api.js.
+    // Updating api.js is cleaner.
+    
+    // For now, I will assume I can update api.js or just use the same URL logic.
+    // The previous grep showed api.js: const API_URL = ...
+    // I can export API_URL from api.js or just replicate the simple logic:
+    
+    const baseURL = import.meta.env.VITE_API_URL || '/api';
+    
     const response = await fetch(`${baseURL}/exportar/excel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // 2. Token vindo das variáveis de ambiente (.env)
         'x-token': import.meta.env.VITE_API_TOKEN
       },
-      body: JSON.stringify({
-        dados: props.dados,
-        tipo: props.tipo
-      })
-    })
+      body: JSON.stringify({ tipo: props.tipo, data: props.dados })
+    });
 
-    if (!response.ok) {
-      if (response.status === 401) throw new Error("Não autorizado.");
-      throw new Error("Erro ao gerar arquivo no servidor.");
-    }
-
-    // 1. Converte a resposta em BLOB (Arquivo Binário)
-    const blob = await response.blob()
+    if (!response.ok) throw new Error("Falha ao gerar Excel")
     
-    // 2. Cria um link invisível no navegador
+    const blob = await response.blob()
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = props.nomeArquivo 
+    a.download = `relatorio_${props.tipo}_${new Date().toISOString().slice(0,10)}.xlsx`
     document.body.appendChild(a)
-    
-    // 3. Clica no link e remove
     a.click()
-    window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
 
   } catch (error) {
-    alert("Erro ao baixar Excel: " + error.message)
-    console.error(error)
+    console.error("Erro no download:", error)
+    alert("Erro ao baixar Excel. Verifique o console.")
   } finally {
-    loading.value = false
+    baixando.value = false
   }
 }
 </script>
 
 <template>
-  <button class="btn-excel" @click="baixarExcel" :disabled="loading">
-    <span v-if="loading">⏳ Gerando...</span>
+  <button class="btn-excel" @click="downloadExcel" :disabled="baixando">
+    <span v-if="baixando">⏳ Gerando...</span>
     <span v-else>📊 Baixar Excel</span>
   </button>
 </template>

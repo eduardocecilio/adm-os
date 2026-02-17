@@ -5,11 +5,12 @@ services:
     build: ./backend
     container_name: adm-os-backend
     # ports:
-    #   - "8001:8000"
+    #   - "8001:8000" (Removed to secure backend)
     volumes:
       - adm_os_data:/data
+    env_file:
+      - ./backend/.env
     environment:
-      - API_TOKEN=${API_TOKEN}
       - DATABASE_URL=sqlite:////data/adm_os.db
     restart: always
 
@@ -17,7 +18,7 @@ services:
     build: ./frontend
     container_name: adm-os-frontend
     ports:
-      - "8082:80" # Porta 8082 liberada para acesso externo
+      - "8082:80"
     depends_on:
       - backend
     restart: always

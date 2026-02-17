@@ -2,9 +2,7 @@
 import { ref } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
 import { menuInvestimentos } from '../../constants/menus/menuInvestimentos.js'
-
-// URL Dinâmica com Fallback para evitar 'undefined'
-const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
+import investimentosService from '../../services/investimentosService.js'
 
 const formatMoney = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -19,22 +17,7 @@ const resultado = ref(null)
 
 async function calcularNoBackend() {
   try {
-    const resposta = await fetch(`${baseURL}/investimentos/swing-trade/calcular`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'x-token': import.meta.env.VITE_API_TOKEN
-      },
-      body: JSON.stringify(form.value)
-    })
-    
-    if (!resposta.ok) {
-      if (resposta.status === 401) throw new Error("Token de segurança inválido.");
-      if (resposta.status === 404) throw new Error("Rota de cálculo não encontrada.");
-      throw new Error("Erro interno no servidor.");
-    }
-
-    const dados = await resposta.json()
+    const dados = await investimentosService.calcularSwingTrade(form.value)
     resultado.value = dados 
   } catch (erro) {
     console.error(erro)

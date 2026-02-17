@@ -45,6 +45,9 @@ const somarGrupo = (lista) => {
 }
 
 // --- CÁLCULO (CORRIGIDO PARA ORDEM ANTERIOR -> ATUAL) ---
+import api from '../../services/api.js'
+
+// --- CÁLCULO (CORRIGIDO PARA ORDEM ANTERIOR -> ATUAL) ---
 const calcularIndices = async () => {
   erro.value = null
   resLiquidez.value = null
@@ -95,38 +98,29 @@ const calcularIndices = async () => {
     pl: { valor: atualPL, history: histPL }
   }
 
-loading.value = true
+  loading.value = true
 
   try {
-    // 1. URL Dinâmica com Fallback
-    const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
-    
-    // 2. Headers Centralizados
-    const headers = { 
-      'Content-Type': 'application/json', 
-      'x-token': import.meta.env.VITE_API_TOKEN 
+    const body = { balanco: balancoObj, dre: dreObj, balanco_anterior: balancoAntObj }
+    const options = {
+      method: 'POST',
+      body: JSON.stringify(body)
     }
-    const body = JSON.stringify({ balanco: balancoObj, dre: dreObj, balanco_anterior: balancoAntObj })
 
-    // 3. Chamadas Paralelas
+    // 3. Chamadas Paralelas usando o service api
+    // O service já retorna o JSON parseado ou lança erro
     const [rL, rR, rE, rA] = await Promise.all([
-      fetch(`${baseURL}/contabilidade/indicadores/liquidez`, { method: 'POST', headers, body }),
-      fetch(`${baseURL}/contabilidade/indicadores/rentabilidade`, { method: 'POST', headers, body }),
-      fetch(`${baseURL}/contabilidade/indicadores/endividamento`, { method: 'POST', headers, body }),
-      fetch(`${baseURL}/contabilidade/indicadores/atividade`, { method: 'POST', headers, body })
+      api('/contabilidade/indicadores/liquidez', options),
+      api('/contabilidade/indicadores/rentabilidade', options),
+      api('/contabilidade/indicadores/endividamento', options),
+      api('/contabilidade/indicadores/atividade', options)
     ])
 
-    // 4. Verificação de Integridade (Se o Token falhar, o status será 401)
-    if (!rL.ok) {
-      if (rL.status === 401) throw new Error("Acesso não autorizado (Token inválido)");
-      throw new Error(`Erro no Backend (Status: ${rL.status})`);
-    }
-
     // 5. Atribuição dos resultados
-    resLiquidez.value = await rL.json()
-    resRentabilidade.value = await rR.json()
-    resEndividamento.value = await rE.json()
-    resAtividade.value = await rA.json()
+    resLiquidez.value = rL
+    resRentabilidade.value = rR
+    resEndividamento.value = rE
+    resAtividade.value = rA
     
     dashboardGerado.value = true
 

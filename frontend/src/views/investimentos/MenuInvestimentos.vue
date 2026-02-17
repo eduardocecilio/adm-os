@@ -20,24 +20,14 @@ const dados = ref({
 })
 
 // --- CARREGAMENTO ---
+import api from '../../services/api.js'
+
+// --- CARREGAMENTO ---
 const carregarDadosMercado = async (periodo) => {
   try {
-    const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
-
-    const resp = await fetch(`${baseURL}/investimentos/mercado/resumo?periodo=${periodo}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-token': import.meta.env.VITE_API_TOKEN
-      }
+    const json = await api(`/investimentos/mercado/resumo?periodo=${periodo}`, {
+      method: 'GET'
     });
-    
-    if (!resp.ok) {
-        if (resp.status === 401) throw new Error("Acesso negado.");
-        throw new Error("Servidor de mercado offline.");
-    }
-
-    const json = await resp.json();
 
     // --- ATUALIZAÇÃO DOS ESTADOS ---
     dados.value.ibov = { ...json.ibov, valor: formatInt(json.ibov.valor) + ' pts', loading: false }
