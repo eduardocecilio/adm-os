@@ -12,17 +12,31 @@ services:
     #   - ./backend/.env
     environment:
       - API_TOKEN=${API_TOKEN}
-      - DATABASE_URL=sqlite:////data/adm_os.db
+      - DATABASE_URL=postgresql://adm_user:adm_password@db:5432/adm_os
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    container_name: adm-os-db
+    environment:
+      POSTGRES_USER: adm_user
+      POSTGRES_PASSWORD: adm_password
+      POSTGRES_DB: adm_os
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     restart: always
 
   frontend:
     build: ./frontend
     container_name: adm-os-frontend
     ports:
-      - "8082:80"
+      - "172.17.0.1:8082:80"
     depends_on:
       - backend
     restart: always
 
 volumes:
   adm_os_data:
+  postgres_data:
