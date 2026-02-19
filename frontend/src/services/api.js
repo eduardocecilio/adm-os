@@ -10,11 +10,21 @@ const API_TOKEN = import.meta.env.VITE_API_TOKEN;
 async function api(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
 
+    const token = localStorage.getItem('token');
+
+    // Default headers
     const headers = {
         'Content-Type': 'application/json',
-        'x-token': API_TOKEN,
         ...options.headers
     };
+
+    // Add Auth Header if token exists
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        // Also keep x-token if needed by legacy parts, or remove it. 
+        // Current backend expects Bearer token for protected routes (via OAuth2PasswordBearer).
+        // It does NOT use x-token anymore for those routes.
+    }
 
     const config = {
         ...options,
@@ -29,7 +39,12 @@ async function api(endpoint, options = {}) {
         const response = await fetch(url, config);
 
         if (!response.ok) {
-            if (response.status === 401) throw new Error("Token de segurança inválido.");
+            if (response.status === 401) {
+                // Token invalid or expired
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+                throw new Error("Sessão expirada. Faça login novamente.");
+            }
             if (response.status === 404) throw new Error("Recurso não encontrado.");
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.detail || `Erro na requisição: ${response.status}`);

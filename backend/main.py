@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from routers.investimentos import swing_trade
 from routers.contabilidade import indicadores
 from routers.investimentos import mercado
+from routers import auth
 
 app = FastAPI(
     title="Adm OS",
@@ -48,14 +49,22 @@ async def verificar_token(token: str = Depends(api_key_header)):
 def home():
     return {"status": "Adm OS Backend Online 🚀"} # <--- MUDADO AQUI
 
+from routers import auth, exportar, users
+from routers.investimentos import swing_trade, mercado
+from routers.contabilidade import indicadores
+
+from dependencies import get_current_active_user
+
+# ... (rest of file) ...
+
 # --- REGISTRO DAS ROTAS ---
-app.include_router(swing_trade.router, dependencies=[Depends(verificar_token)])
+app.include_router(auth.router)
+app.include_router(users.router) # Added users router
+app.include_router(swing_trade.router, dependencies=[Depends(get_current_active_user)])
 
 # Rota de Indicadores
-app.include_router(indicadores.router, dependencies=[Depends(verificar_token)])
-
-# Rota de Mercado Financeiro
-app.include_router(mercado.router)
+app.include_router(indicadores.router, dependencies=[Depends(get_current_active_user)])
 
 # Rota de Exportação
-app.include_router(exportar.router, dependencies=[Depends(verificar_token)])
+app.include_router(exportar.router, dependencies=[Depends(get_current_active_user)])
+app.include_router(mercado.router, dependencies=[Depends(get_current_active_user)])

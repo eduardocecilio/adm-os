@@ -1,43 +1,50 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import Header from '../components/Header.vue'
+
 const router = useRouter()
 </script>
 
 <template>
-  <div class="dashboard">
-    <header>
-      <h1>AdmOS</h1>
-      <p class="subtitle">Sistema de Inteligência Corporativa</p>
-    </header>
+  <div class="dashboard-page">
+    <Header />
     
-    <div class="grid">
-      
-      <div class="card" @click="router.push('/contabilidade')"> 
-        <div class="icon">💰</div>
-        <h3>Contabilidade</h3>
-        <p>Análise de Balanços, Liquidez e DRE.</p>
-      </div>
+    <div class="dashboard-content">
+      <header class="page-title">
+        <h1>Bem-vindo ao AdmOS</h1>
+        <p class="subtitle">Sistema de Inteligência Corporativa</p>
+      </header>
+    
+      <div class="grid">
+        
+        <div class="card" @click="router.push('/contabilidade')"> 
+          <div class="icon">💰</div>
+          <h3>Contabilidade</h3>
+          <p>Análise de Balanços, Liquidez e DRE.</p>
+        </div>
 
-      <div class="card" @click="router.push('/investimentos')"> 
-        <div class="icon">📈</div>
-        <h3>Investimentos</h3> 
-        <p>Análise de mercado, Risco e Estratégias.</p>
-      </div>
+        <div class="card" @click="router.push('/investimentos')"> 
+          <div class="icon">📈</div>
+          <h3>Investimentos</h3> 
+          <p>Análise de mercado, Risco e Estratégias.</p>
+        </div>
 
-      <div class="card" @click="router.push('/estrategia')"> 
-        <div class="icon">🎯</div>
-        <h3>Estratégia</h3> 
-        <p>Análise de sentimento, NPS e KPIs de marca.</p>
+        <div class="card" @click="router.push('/estrategia')"> 
+          <div class="icon">🎯</div>
+          <h3>Estratégia</h3> 
+          <p>Análise de sentimento, NPS e KPIs de marca.</p>
+        </div>
+        
       </div>
-      
     </div>
   </div>
 </template>
 
 <style scoped>
-.dashboard { padding: 40px; max-width: 1200px; margin: 0 auto; text-align: center; }
-.subtitle { color: #666; margin-bottom: 50px; font-size: 1.2rem; margin-top: -10px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+.dashboard-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; text-align: center; }
+.page-title { margin-bottom: 40px; }
+.subtitle { color: #666; margin-top: 10px; font-size: 1.2rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; padding-bottom: 40px; }
 .card { 
   background: #fff; 
   padding: 30px; 

@@ -17,26 +17,47 @@ import BalancoPatrimonial from './views/contabilidade/BalancoPatrimonial.vue'
 import DRE from './views/contabilidade/DRE.vue'
 
 const routes = [
-  { path: '/', component: Home },
-  
+  { path: '/login', component: () => import('./views/auth/Login.vue') },
+  { path: '/register', component: () => import('./views/auth/Register.vue') },
+  { path: '/profile', component: () => import('./views/auth/Profile.vue'), meta: { requiresAuth: true } },
+
+  {
+    path: '/',
+    component: Home,
+    meta: { requiresAuth: true }
+  },
+
   // Rotas de Investimentos
-  { path: '/investimentos', component: MenuInvestimentos },
-  { path: '/investimentos/swing-trade', component: SwingTrade },
+  { path: '/investimentos', component: MenuInvestimentos, meta: { requiresAuth: true } },
+  { path: '/investimentos/swing-trade', component: SwingTrade, meta: { requiresAuth: true } },
 
   // Rotas de Contabilidade
-  { path: '/contabilidade', component: MenuContabilidade },
-  { path: '/contabilidade/indicadores', component: Indicadores },
-  { path: '/contabilidade/balanco', component: BalancoPatrimonial },
-  { path: '/contabilidade/dre', component: DRE },
+  { path: '/contabilidade', component: MenuContabilidade, meta: { requiresAuth: true } },
+  { path: '/contabilidade/indicadores', component: Indicadores, meta: { requiresAuth: true } },
+  { path: '/contabilidade/balanco', component: BalancoPatrimonial, meta: { requiresAuth: true } },
+  { path: '/contabilidade/dre', component: DRE, meta: { requiresAuth: true } },
 
   // Rotas de Estratégia
-  { path: '/estrategia', component: MenuEstrategia },
-  { path: '/estrategia/nps', component: NPS }
+  { path: '/estrategia', component: MenuEstrategia, meta: { requiresAuth: true } },
+  { path: '/estrategia/nps', component: NPS, meta: { requiresAuth: true } }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+
+  if (to.meta.requiresAuth && !token) {
+    next('/login')
+  } else if ((to.path === '/login' || to.path === '/register') && token) {
+    // If user is already logged in, redirect to home
+    next('/')
+  } else {
+    next()
+  }
 })
 
 export default router
