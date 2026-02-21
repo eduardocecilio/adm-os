@@ -4,6 +4,9 @@ from fastapi.security import APIKeyHeader
 from routers import exportar
 import os
 from dotenv import load_dotenv
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from limiter import limiter
 
 # --- IMPORTS DOS ROTEADORES ---
 from routers.investimentos import swing_trade
@@ -16,6 +19,9 @@ app = FastAPI(
     docs_url=None if os.getenv("ENV") == "production" else "/docs",
     redoc_url=None
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Adicione localhost para testes no Mac e sua URL oficial para produção
 origins = [

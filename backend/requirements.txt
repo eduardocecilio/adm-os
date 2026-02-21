@@ -5,6 +5,7 @@ psycopg2-binary
 alembic
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt==3.2.2
 python-multipart
 python-dotenv
 requests
@@ -17,5 +18,4 @@ beautifulsoup4
 pydantic>=2.0.0
 pydantic-settings>=2.0.0
 email-validator>=2.0.0
-# Temporarily removed to fix build
-# fastapi-mail
+slowapi>=0.1.9

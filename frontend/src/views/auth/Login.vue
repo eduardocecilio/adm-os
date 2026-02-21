@@ -66,6 +66,10 @@ const handleLogin = async () => {
         </button>
       </form>
       
+      <div class="forgot-password-link">
+        <router-link to="/forgot-password">Esqueceu a senha?</router-link>
+      </div>
+
       <p class="footer-link">
         Não tem conta? <router-link to="/register">Crie uma agora</router-link>
       </p>
@@ -190,5 +194,21 @@ input:focus {
 
 .footer-link a:hover {
   text-decoration: underline;
+}
+
+.forgot-password-link {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.forgot-password-link a {
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.forgot-password-link a:hover {
+  color: #42b983;
 }
 </style>

@@ -19,6 +19,8 @@ import DRE from './views/contabilidade/DRE.vue'
 const routes = [
   { path: '/login', component: () => import('./views/auth/Login.vue') },
   { path: '/register', component: () => import('./views/auth/Register.vue') },
+  { path: '/forgot-password', component: () => import('./views/auth/ForgotPassword.vue') },
+  { path: '/reset-password', component: () => import('./views/auth/ResetPassword.vue') },
   { path: '/profile', component: () => import('./views/auth/Profile.vue'), meta: { requiresAuth: true } },
 
   {

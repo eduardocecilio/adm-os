@@ -54,9 +54,7 @@ venv.bak/
 .env.local
 .env.*.local
 
-# PERMITE os arquivos de configuração de ambiente do Frontend
-!.env.development
-!.env.production
+# PERMITE os arquivos de configuração de exemplo do Frontend
 !.env.example
 
 # --- IDE / EDITOR ---

@@ -49,17 +49,4 @@ async def update_user_me(user_update: UserUpdate,
     db.refresh(current_user)
     return current_user
 
-@router.post("/send-test-email")
-async def send_test_email(current_user: User = Depends(get_current_active_user)):
-    try:
-        await send_email(
-            subject="Teste de Email - AdmOS",
-            recipients=[current_user.email],
-            body="<h1>Olá!</h1><p>Este é um email de teste do sistema AdmOS.</p>"
-        )
-        return {"message": "Email enviado com sucesso!"}
-    except Exception as e:
-        print(f"Erro ao enviar email: {e}")
-        # Return success for now to not block UI if SMTP is not configured, but log error
-        # In production, we'd handle this better.
-        raise HTTPException(status_code=500, detail=f"Erro ao enviar email: {str(e)}")
+

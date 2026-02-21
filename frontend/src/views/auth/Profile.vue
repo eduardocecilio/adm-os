@@ -57,14 +57,6 @@ const updateProfile = async () => {
   }
 }
 
-const sendTestEmail = async () => {
-    try {
-        await api('/users/send-test-email', { method: 'POST' })
-        message.value = "Email de teste enviado! Verifique sua caixa de entrada (ou logs do servidor)."
-    } catch (err) {
-        error.value = "Erro ao enviar email."
-    }
-}
 
 onMounted(fetchProfile)
 </script>
@@ -78,12 +70,15 @@ onMounted(fetchProfile)
         <h1>👤 Meu Perfil</h1>
         
         <form @submit.prevent="updateProfile">
+          <!-- Dados Básicos -->
           <div class="form-group">
             <label>Email</label>
             <input v-model="user.email" type="email" required />
           </div>
 
           <div class="divider"></div>
+          
+          <!-- Alterar Senha -->
           <h3>Alterar Senha (Opcional)</h3>
 
           <div class="form-group">
@@ -96,6 +91,7 @@ onMounted(fetchProfile)
             <input v-model="confirmPassword" type="password" placeholder="Confirme a nova senha" />
           </div>
 
+          <!-- Mensagens e Botão (unificados) -->
           <div v-if="message" class="success-msg">✅ {{ message }}</div>
           <div v-if="error" class="error-msg">⚠️ {{ error }}</div>
 
@@ -103,15 +99,6 @@ onMounted(fetchProfile)
             {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
           </button>
         </form>
-
-        <div class="divider"></div>
-        
-        <div class="email-section">
-            <h3>📧 Email</h3>
-            <p>Teste as configurações de email enviando uma mensagem para você mesmo.</p>
-            <button @click="sendTestEmail" class="btn-secondary">Enviar Email de Teste</button>
-        </div>
-
       </div>
     </div>
   </div>

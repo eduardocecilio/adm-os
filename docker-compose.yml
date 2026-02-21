@@ -12,7 +12,13 @@ services:
     #   - ./backend/.env
     environment:
       - API_TOKEN=${API_TOKEN}
-      - DATABASE_URL=postgresql://adm_user:adm_password@db:5432/adm_os
+      - DATABASE_URL=${DATABASE_URL}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - ENV=${ENV}
     depends_on:
       - db
     restart: always
@@ -21,18 +27,21 @@ services:
     image: postgres:15-alpine
     container_name: adm-os-db
     environment:
-      POSTGRES_USER: adm_user
-      POSTGRES_PASSWORD: adm_password
-      POSTGRES_DB: adm_os
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=${VITE_API_URL}
     container_name: adm-os-frontend
     ports:
-      - "172.17.0.1:8082:80"
+      - "8082:80"
     depends_on:
       - backend
     restart: always
