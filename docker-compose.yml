@@ -1,55 +1,51 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
-    container_name: adm-os-backend
-    # ports:
-    #   - "8001:8000" (Removed to secure backend)
+    restart: unless-stopped
     volumes:
       - adm_os_data:/data
-    # env_file:
-    #   - ./backend/.env
     environment:
-      - API_TOKEN=${API_TOKEN}
-      - DATABASE_URL=${DATABASE_URL}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - FRONTEND_URL=${FRONTEND_URL}
-      - ENV=${ENV}
+      API_TOKEN: ${API_TOKEN}
+      DATABASE_URL: ${DATABASE_URL}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      FRONTEND_URL: ${FRONTEND_URL}
+      ENV: ${ENV}
     depends_on:
-      - db
-    restart: always
+      adm_os_db:
+        condition: service_healthy
 
-  db:
+  adm_os_db:
     image: postgres:15-alpine
-    container_name: adm-os-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      TZ: America/Sao_Paulo
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
-      default: {}
-      infra_net:
-        aliases:
-          - adm_os_db
-    restart: always
+      - default
+      - infra_net
 
   frontend:
     build:
       context: ./frontend
       args:
-        - VITE_API_URL=${VITE_API_URL}
-    container_name: adm-os-frontend
+        VITE_API_URL: ${VITE_API_URL}
+    restart: unless-stopped
     ports:
-      - "8082:80"
+      - "172.17.0.1:8082:80"
     depends_on:
       - backend
-    restart: always
 
 volumes:
   adm_os_data:
@@ -57,8 +53,6 @@ volumes:
 
 
 networks:
-  default:
-    driver: bridge
   infra_net:
     external: true
     name: infra_net
