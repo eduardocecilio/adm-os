@@ -17,13 +17,13 @@ const router = useRouter()
          <ul class="sidebar-menu">
            <li 
              :class="{ active: route.path.includes('/settings/general') }"
-             @click="router.push('/settings/general')"
+             @click="router.push(`/${activeWorkspace.id}/settings/general`)"
            >
              ⚙️ Configurações
            </li>
            <li 
              :class="{ active: route.path.includes('/settings/members') }"
-             @click="router.push('/settings/members')"
+             @click="router.push(`/${activeWorkspace.id}/settings/members`)"
            >
              👥 Pessoas
            </li>

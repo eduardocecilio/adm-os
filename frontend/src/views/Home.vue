@@ -1,35 +1,37 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import Header from '../components/Header.vue'
+import { useWorkspace } from '../composables/useWorkspace'
 
 const router = useRouter()
+const { activeWorkspace } = useWorkspace()
 </script>
 
 <template>
   <div class="dashboard-page">
     <Header />
     
-    <div class="dashboard-content">
+    <div class="dashboard-content" v-if="activeWorkspace">
       <header class="page-title">
         <h1>Bem-vindo ao AdmOS</h1>
-        <p class="subtitle">Sistema de Inteligência Corporativa</p>
+        <p class="subtitle">Sistema de Inteligência Corporativa — {{ activeWorkspace.name }}</p>
       </header>
     
       <div class="grid">
         
-        <div class="card" @click="router.push('/contabilidade')"> 
+        <div class="card" @click="router.push(`/${activeWorkspace.id}/contabilidade`)"> 
           <div class="icon">💰</div>
           <h3>Contabilidade</h3>
           <p>Análise de Balanços, Liquidez e DRE.</p>
         </div>
 
-        <div class="card" @click="router.push('/investimentos')"> 
+        <div class="card" @click="router.push(`/${activeWorkspace.id}/investimentos`)"> 
           <div class="icon">📈</div>
           <h3>Investimentos</h3> 
           <p>Análise de mercado, Risco e Estratégias.</p>
         </div>
 
-        <div class="card" @click="router.push('/estrategia')"> 
+        <div class="card" @click="router.push(`/${activeWorkspace.id}/estrategia`)"> 
           <div class="icon">🎯</div>
           <h3>Estratégia</h3> 
           <p>Análise de sentimento, NPS e KPIs de marca.</p>

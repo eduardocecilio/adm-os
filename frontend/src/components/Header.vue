@@ -31,7 +31,8 @@ onMounted(() => {
 const selectWorkspace = (ws) => {
   setActiveWorkspace(ws)
   showDropdown.value = false
-  // Optional: reload the page or trigger a global event if data needs to refresh
+  // Força a navegação para a raiz do novo workspace
+  router.push(`/${ws.id}/dashboard`)
 }
 
 const closeAndNavigate = (path) => {
@@ -49,7 +50,7 @@ const logout = () => {
 <template>
   <header class="app-header">
     <div class="header-left">
-      <div class="logo" @click="router.push('/')">
+      <div class="logo" @click="router.push(`/${activeWorkspace.id}/dashboard`)">
         🚀 AdmOS
       </div>
       
@@ -71,10 +72,10 @@ const logout = () => {
               </div>
             </div>
             <div class="ws-action-buttons">
-              <button class="action-btn" @click="closeAndNavigate('/settings/general')">
+              <button class="action-btn" @click="closeAndNavigate(`/${activeWorkspace.id}/settings/general`)">
                 ⚙️ Configurações
               </button>
-              <button class="action-btn" @click="closeAndNavigate('/settings/members')">
+              <button class="action-btn" @click="closeAndNavigate(`/${activeWorkspace.id}/settings/members`)">
                 👥 Pessoas
               </button>
             </div>
@@ -98,6 +99,7 @@ const logout = () => {
             <div class="dropdown-divider"></div>
           </div>
 
+          <!-- Note: /workspaces/new needs to be added to router if it doesn't exist -->
           <div class="dropdown-item create-new" @click="closeAndNavigate('/workspaces/new')">
             + Criar Espaço de trabalho
           </div>

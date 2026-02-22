@@ -21,9 +21,16 @@ async function api(endpoint, options = {}) {
     // Add Auth Header if token exists
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
-        // Also keep x-token if needed by legacy parts, or remove it. 
-        // Current backend expects Bearer token for protected routes (via OAuth2PasswordBearer).
-        // It does NOT use x-token anymore for those routes.
+    }
+
+    // Auto-inject Workspace ID from URL if present
+    // URL format: /<workspace_id>/route (e.g., /2/settings/general)
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    if (pathSegments.length > 0) {
+        const potentialWorkspaceId = parseInt(pathSegments[0], 10);
+        if (!isNaN(potentialWorkspaceId)) {
+            headers['X-Workspace-Id'] = potentialWorkspaceId.toString();
+        }
     }
 
     const config = {
