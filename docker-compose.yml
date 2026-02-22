@@ -52,8 +52,8 @@ services:
     restart: always
 
 volumes:
-  adm_os_data_v2:
-  postgres_data_v2:
+  adm_os_data:
+  postgres_data:
 
 
 networks:
