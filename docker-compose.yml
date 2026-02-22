@@ -46,7 +46,7 @@ services:
     container_name: adm-os-frontend
     restart: unless-stopped
     ports:
-      - "8082:80" #o idal e ser 172.17.0.1:8082 mas como estamos rodando localmente, usamos 0.0.0.0, mas isso e uma ma pratica, pois estamos exposto para a rede global e pode ser um risco de segurança
+      - "172.17.0.1:8082:80"
     depends_on:
       - backend
 
