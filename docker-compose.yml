@@ -7,7 +7,7 @@ services:
     # ports:
     #   - "8001:8000" (Removed to secure backend)
     volumes:
-      - adm_os_data_v2:/data
+      - adm_os_data:/data
     # env_file:
     #   - ./backend/.env
     environment:
@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgres_data_v2:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       default: {}
       infra_net:
