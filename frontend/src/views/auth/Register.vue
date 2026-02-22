@@ -1,13 +1,37 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const workspaceName = ref('')
+
+const inviteToken = ref(null)
+const isInvited = ref(false)
+
 const error = ref('')
 const loading = ref(false)
+
 const router = useRouter()
+const route = useRoute()
+
+onMounted(() => {
+    const token = route.query.invite
+    if (token) {
+        try {
+            // Unpack JWT payload statically (base64) to get email without relying on a full verifier
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            if (payload.sub) {
+                email.value = payload.sub
+                inviteToken.value = token
+                isInvited.value = true
+            }
+        } catch (e) {
+            console.error("Invalid invite token format:", e)
+        }
+    }
+})
 
 const handleRegister = async () => {
     if (password.value !== confirmPassword.value) {
@@ -19,15 +43,20 @@ const handleRegister = async () => {
     error.value = ''
 
     try {
+        const payload = {
+            email: email.value,
+            password: password.value
+        }
+        
+        if (workspaceName.value) payload.workspace_name = workspaceName.value
+        if (inviteToken.value) payload.invite_token = inviteToken.value
+
         const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                email: email.value,
-                password: password.value
-            })
+            body: JSON.stringify(payload)
         })
 
         if (!response.ok) {
@@ -55,9 +84,19 @@ const handleRegister = async () => {
       <p class="subtitle">Junte-se à plataforma gratuitamente</p>
       
       <form @submit.prevent="handleRegister">
+        
+        <div v-if="isInvited" class="invite-alert alert success">
+            🎉 Você foi convidado para participar de um Workspace! Crie sua senha de acesso abaixo.
+        </div>
+      
+        <div v-if="!isInvited" class="form-group">
+          <label>Nome da sua Empresa / Organização</label>
+          <input v-model="workspaceName" type="text" placeholder="Deixe em branco para preencher depois" />
+        </div>
+
         <div class="form-group">
           <label>Email</label>
-          <input v-model="email" type="email" required placeholder="seu@email.com" />
+          <input v-model="email" type="email" required placeholder="seu@email.com" :disabled="isInvited" :class="{'locked-input': isInvited}" />
         </div>
 
         <div class="form-group">

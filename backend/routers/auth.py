@@ -5,7 +5,7 @@ from database import get_db
 from models.user import User
 from auth_utils import get_password_hash, verify_password, create_access_token, create_reset_token, verify_reset_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import Annotated
+from typing import Annotated, Optional
 from email_utils import send_email
 from config import settings
 from limiter import limiter
@@ -17,18 +17,31 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 class UserCreate(BaseModel):
     email: str
     password: str
+    workspace_name: Optional[str] = None
+    invite_token: Optional[str] = None
 
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 from models.workspace import Workspace, WorkspaceUser, WorkspaceRole
+from auth_utils import verify_invite_token
 
 @router.post("/register", response_model=Token)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Este e-mail já está cadastrado")
+        
+    invited_workspace_id = None
+    invited_role = None
+    
+    if user.invite_token:
+        invite_data = verify_invite_token(user.invite_token)
+        if not invite_data or invite_data["email"].lower() != user.email.lower():
+            raise HTTPException(status_code=400, detail="Token de convite inválido ou expirado para este e-mail.")
+        invited_workspace_id = invite_data["workspace_id"]
+        invited_role = invite_data["role"]
     
     hashed_password = get_password_hash(user.password)
     new_user = User(email=user.email, hashed_password=hashed_password)
@@ -36,20 +49,30 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     
-    # --- AUTO CREATE DEFAULT WORKSPACE ---
-    workspace_name = f"Empresa de {user.email.split('@')[0].capitalize()}"
-    new_workspace = Workspace(name=workspace_name)
-    db.add(new_workspace)
-    db.commit()
-    db.refresh(new_workspace)
-    
-    workspace_user = WorkspaceUser(
-        workspace_id=new_workspace.id,
-        user_id=new_user.id,
-        role=WorkspaceRole.OWNER
-    )
-    db.add(workspace_user)
-    db.commit()
+    if invited_workspace_id:
+        # Join existing workspace from invite
+        workspace_user = WorkspaceUser(
+            workspace_id=invited_workspace_id,
+            user_id=new_user.id,
+            role=invited_role
+        )
+        db.add(workspace_user)
+        db.commit()
+    else:
+        # --- AUTO CREATE DEFAULT WORKSPACE ---
+        ws_name = user.workspace_name if user.workspace_name else f"Empresa de {user.email.split('@')[0].capitalize()}"
+        new_workspace = Workspace(name=ws_name)
+        db.add(new_workspace)
+        db.commit()
+        db.refresh(new_workspace)
+        
+        workspace_user = WorkspaceUser(
+            workspace_id=new_workspace.id,
+            user_id=new_user.id,
+            role=WorkspaceRole.OWNER
+        )
+        db.add(workspace_user)
+        db.commit()
     
     access_token = create_access_token(data={"sub": new_user.email})
     return {"access_token": access_token, "token_type": "bearer"}

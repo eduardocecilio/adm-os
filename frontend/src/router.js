@@ -6,8 +6,7 @@ import Home from './views/Home.vue'
 import MenuEstrategia from './views/estrategia/MenuEstrategia.vue'
 import NPS from './views/estrategia/NPS.vue'
 
-// Importações de Workspaces
-import WorkspaceMembers from './views/settings/WorkspaceMembers.vue'
+
 
 // Importações de INVESTIMENTOS
 import MenuInvestimentos from './views/investimentos/MenuInvestimentos.vue'
@@ -33,7 +32,16 @@ const routes = [
   },
 
   // Rotas de Workspaces / Configurações
-  { path: '/workspaces/settings', component: WorkspaceMembers, meta: { requiresAuth: true } },
+  {
+    path: '/settings',
+    component: () => import('./views/settings/SettingsLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      { path: 'general', component: () => import('./views/settings/WorkspaceGeneral.vue') },
+      { path: 'members', component: () => import('./views/settings/WorkspaceMembers.vue') },
+      { path: '', redirect: '/settings/general' }
+    ]
+  },
 
   // Rotas de Investimentos
   { path: '/investimentos', component: MenuInvestimentos, meta: { requiresAuth: true } },

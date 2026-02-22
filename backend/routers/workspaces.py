@@ -1,0 +1,173 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
+from database import get_db
+from models.user import User
+from models.workspace import Workspace, WorkspaceUser, WorkspaceRole
+from schemas.workspace import WorkspaceCreate, WorkspaceOut, WorkspaceWithRole, WorkspaceInvite, WorkspaceUpdate, WorkspaceMemberOut
+from dependencies import get_current_active_user, get_workspace_access, get_workspace_admin_access
+
+router = APIRouter(prefix="/workspaces", tags=["workspaces"])
+
+@router.post("/", response_model=WorkspaceOut, status_code=status.HTTP_201_CREATED)
+def create_workspace(workspace_in: WorkspaceCreate, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    # Create the workspace
+    workspace = Workspace(name=workspace_in.name)
+    db.add(workspace)
+    db.commit()
+    db.refresh(workspace)
+    
+    # Associate the current user as the OWNER of the new workspace
+    workspace_user = WorkspaceUser(
+        workspace_id=workspace.id,
+        user_id=current_user.id,
+        role=WorkspaceRole.OWNER
+    )
+    db.add(workspace_user)
+    db.commit()
+    
+    return workspace
+
+@router.get("/", response_model=List[WorkspaceWithRole])
+def list_my_workspaces(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    # Get all workspaces where the user is a member
+    user_workspaces = db.query(WorkspaceUser).filter(WorkspaceUser.user_id == current_user.id).all()
+    
+    results = []
+    for wu in user_workspaces:
+        ws = wu.workspace
+        # Combine the workspace model with the specific user's role
+        results.append({
+            "id": ws.id,
+            "name": ws.name,
+            "created_at": ws.created_at,
+            "updated_at": ws.updated_at,
+            "role": wu.role
+        })
+        
+    return results
+
+@router.get("/{workspace_id}", response_model=WorkspaceWithRole)
+def get_workspace(workspace_id: int, workspace_data: dict = Depends(get_workspace_access)):
+    # workspace_data is returned by the dependency and contains both workspace and role
+    return workspace_data
+
+from auth_utils import create_invite_token
+from email_utils import send_email
+from config import settings
+
+@router.post("/{workspace_id}/invite", status_code=status.HTTP_200_OK)
+async def invite_user(
+    workspace_id: int,
+    invite_data: WorkspaceInvite, 
+    workspace_data: dict = Depends(get_workspace_admin_access), 
+    db: Session = Depends(get_db)
+):
+    workspace = workspace_data["workspace"]
+    
+    # Check if user to invite already exists in the system
+    target_user = db.query(User).filter(User.email == invite_data.email).first()
+    
+    if target_user:
+        # User exists. Check if they are already in THIS workspace
+        existing_link = db.query(WorkspaceUser).filter(
+            WorkspaceUser.workspace_id == workspace.id,
+            WorkspaceUser.user_id == target_user.id
+        ).first()
+        
+        if existing_link:
+            raise HTTPException(status_code=400, detail="Este usuário já faz parte do workspace.")
+            
+        # Add existing user to workspace immediately
+        new_member = WorkspaceUser(
+            workspace_id=workspace.id,
+            user_id=target_user.id,
+            role=invite_data.role
+        )
+        db.add(new_member)
+        db.commit()
+        return {"msg": f"O usuário {invite_data.email} já possuía uma conta e foi adicionado ao workspace '{workspace.name}' com sucesso!"}
+        
+    else:
+        # User does NOT exist. Generate Magic Link
+        invite_token = create_invite_token(
+            email=invite_data.email, 
+            workspace_id=workspace.id, 
+            role=invite_data.role
+        )
+        
+        frontend_url = settings.FRONTEND_URL
+        magic_link = f"{frontend_url}/register?invite={invite_token}"
+        
+        await send_email(
+            subject=f"Você foi convidado para a organização {workspace.name} - Adm OS",
+            email_to=[invite_data.email],
+            body={
+                "link": magic_link, 
+                "message": f"Você foi convidado para se juntar à organização '{workspace.name}' no Adm OS. Clique no link abaixo para criar sua conta gratuita e aceitar o convite:"
+            }
+        )
+        
+        return {"msg": f"Um convite foi enviado por e-mail para {invite_data.email}."}
+
+@router.put("/{workspace_id}", response_model=WorkspaceOut)
+def update_workspace(
+    workspace_id: int,
+    workspace_in: WorkspaceUpdate,
+    workspace_data: dict = Depends(get_workspace_admin_access),
+    db: Session = Depends(get_db)
+):
+    workspace = workspace_data["workspace"]
+    workspace.name = workspace_in.name
+    db.commit()
+    db.refresh(workspace)
+    return workspace
+
+@router.get("/{workspace_id}/members", response_model=List[WorkspaceMemberOut])
+def list_workspace_members(
+    workspace_id: int,
+    workspace_data: dict = Depends(get_workspace_access),
+    db: Session = Depends(get_db)
+):
+    workspace = workspace_data["workspace"]
+    # Join WorkspaceUser and User
+    members = db.query(WorkspaceUser, User).join(User, WorkspaceUser.user_id == User.id).filter(WorkspaceUser.workspace_id == workspace.id).all()
+    
+    results = []
+    for wu, user in members:
+        results.append({
+            "user_id": user.id,
+            "email": user.email,
+            "role": wu.role,
+            "joined_at": wu.joined_at
+        })
+    return results
+
+@router.delete("/{workspace_id}/members/{user_id}", status_code=status.HTTP_200_OK)
+def remove_member(
+    workspace_id: int,
+    user_id: int,
+    workspace_data: dict = Depends(get_workspace_admin_access),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    workspace = workspace_data["workspace"]
+    
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Você não pode remover a si mesmo por este canal.")
+        
+    link = db.query(WorkspaceUser).filter(
+        WorkspaceUser.workspace_id == workspace.id,
+        WorkspaceUser.user_id == user_id
+    ).first()
+    
+    if getattr(link, 'role', None) == WorkspaceRole.OWNER and workspace_data["role"] != WorkspaceRole.OWNER:
+        raise HTTPException(status_code=403, detail="Apenas o criador (OWNER) pode remover outro dono.")
+        
+    if not link:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado neste workspace.")
+        
+    db.delete(link)
+    db.commit()
+    return {"msg": "Usuário removido do workspace com sucesso."}
+

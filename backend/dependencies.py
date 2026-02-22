@@ -31,3 +31,37 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+from models.workspace import WorkspaceUser, WorkspaceRole
+
+async def get_workspace_access(
+    workspace_id: int, 
+    current_user: User = Depends(get_current_active_user), 
+    db: Session = Depends(get_db)
+):
+    """Dependency that ensures the authenticated user is a member of the requested workspace."""
+    link = db.query(WorkspaceUser).filter(
+        WorkspaceUser.workspace_id == workspace_id,
+        WorkspaceUser.user_id == current_user.id
+    ).first()
+    
+    if not link:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Você não tem acesso a este workspace ou ele não existe"
+        )
+        
+    return {
+        "workspace": link.workspace,
+        "role": link.role
+    }
+
+async def get_workspace_admin_access(workspace_data: dict = Depends(get_workspace_access)):
+    """Dependency that ensures the user is an ADMIN or OWNER of the requested workspace."""
+    role = workspace_data["role"]
+    if role not in [WorkspaceRole.OWNER, WorkspaceRole.ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Você não tem permissão de administrador neste workspace"
+        )
+    return workspace_data

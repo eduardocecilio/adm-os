@@ -62,3 +62,23 @@ button:hover {
   padding: 0;
   text-align: center;
 }
+
+/* Responsividade Global */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .show-on-mobile {
+    display: none !important;
+  }
+}
+
+/* Tabelas e Containers Responsivos */
+.responsive-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}

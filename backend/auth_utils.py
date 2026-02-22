@@ -4,7 +4,6 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 import os
 from dotenv import load_dotenv
-from models.user import User # Adicionado para anotação de tipo, se necessário
 
 load_dotenv()
 
@@ -13,6 +12,7 @@ RESET_SECRET_KEY = os.getenv("RESET_SECRET_KEY", "OUTRA_CHAVE_SECRETA_PARA_RESET
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
 RESET_TOKEN_EXPIRE_MINUTES = 30 # Token de reset expira em 30 min
+INVITE_TOKEN_EXPIRE_MINUTES = 10080 # Token de convite expira em 7 dias (7 * 24 * 60)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -47,3 +47,33 @@ def verify_reset_token(token: str) -> Optional[str]:
         return str(email)
     except JWTError:
         return None
+
+def create_invite_token(email: str, workspace_id: int, role: str):
+    expire = datetime.utcnow() + timedelta(minutes=INVITE_TOKEN_EXPIRE_MINUTES)
+    to_encode = {
+        "sub": email, 
+        "workspace_id": workspace_id,
+        "role": role,
+        "exp": expire
+    }
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def verify_invite_token(token: str) -> Optional[dict]:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        workspace_id = payload.get("workspace_id")
+        role = payload.get("role")
+        
+        if not email or not workspace_id or not role:
+            return None
+            
+        return {
+            "email": str(email),
+            "workspace_id": int(workspace_id),
+            "role": str(role)
+        }
+    except JWTError:
+        return None
+
