@@ -22,6 +22,8 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+from models.workspace import Workspace, WorkspaceUser, WorkspaceRole
+
 @router.post("/register", response_model=Token)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
@@ -33,6 +35,21 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
+    # --- AUTO CREATE DEFAULT WORKSPACE ---
+    workspace_name = f"Empresa de {user.email.split('@')[0].capitalize()}"
+    new_workspace = Workspace(name=workspace_name)
+    db.add(new_workspace)
+    db.commit()
+    db.refresh(new_workspace)
+    
+    workspace_user = WorkspaceUser(
+        workspace_id=new_workspace.id,
+        user_id=new_user.id,
+        role=WorkspaceRole.OWNER
+    )
+    db.add(workspace_user)
+    db.commit()
     
     access_token = create_access_token(data={"sub": new_user.email})
     return {"access_token": access_token, "token_type": "bearer"}

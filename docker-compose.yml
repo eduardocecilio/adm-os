@@ -46,7 +46,7 @@ services:
     container_name: adm-os-frontend
     restart: unless-stopped
     ports:
-      - "172.17.0.1:8082:80"
+      - "8082:80"
     depends_on:
       - backend
 

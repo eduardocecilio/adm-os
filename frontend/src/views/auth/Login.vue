@@ -31,6 +31,27 @@ const handleLogin = async () => {
 
     const data = await response.json()
     localStorage.setItem('token', data.access_token)
+    
+    // Auto-fetch default workspace
+    try {
+        const wsResponse = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/workspaces/`, {
+            headers: { 'Authorization': `Bearer ${data.access_token}` }
+        })
+        if (wsResponse.ok) {
+            const workspaces = await wsResponse.json()
+            if (workspaces.length > 0) {
+                // Store first workspace as active by default
+                localStorage.setItem('activeWorkspace', JSON.stringify({
+                    id: workspaces[0].id,
+                    name: workspaces[0].name,
+                    role: workspaces[0].role
+                }))
+            }
+        }
+    } catch (e) {
+        console.warn('Could not load workspaces during login:', e)
+    }
+
     router.push('/')
     
   } catch (err) {

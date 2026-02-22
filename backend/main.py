@@ -68,17 +68,16 @@ async def verificar_token(token: str = Depends(api_key_header)):
 def home():
     return {"status": "Adm OS Backend Online 🚀"} # <--- MUDADO AQUI
 
-from routers import auth, exportar, users
+from routers import auth, exportar, users, workspaces
 from routers.investimentos import swing_trade, mercado
 from routers.contabilidade import indicadores
 
 from dependencies import get_current_active_user
 
-# ... (rest of file) ...
-
 # --- REGISTRO DAS ROTAS ---
 app.include_router(auth.router)
 app.include_router(users.router) # Added users router
+app.include_router(workspaces.router) # NO dependencies injected here because the endpoints require specific workspace dependency injections like get_workspace_access. The list_my_workspaces already uses get_current_active_user directly.
 app.include_router(swing_trade.router, dependencies=[Depends(get_current_active_user)])
 
 # Rota de Indicadores

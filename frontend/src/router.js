@@ -6,6 +6,9 @@ import Home from './views/Home.vue'
 import MenuEstrategia from './views/estrategia/MenuEstrategia.vue'
 import NPS from './views/estrategia/NPS.vue'
 
+// Importações de Workspaces
+import WorkspaceMembers from './views/settings/WorkspaceMembers.vue'
+
 // Importações de INVESTIMENTOS
 import MenuInvestimentos from './views/investimentos/MenuInvestimentos.vue'
 import SwingTrade from './views/investimentos/SwingTrade.vue'
@@ -28,6 +31,9 @@ const routes = [
     component: Home,
     meta: { requiresAuth: true }
   },
+
+  // Rotas de Workspaces / Configurações
+  { path: '/workspaces/settings', component: WorkspaceMembers, meta: { requiresAuth: true } },
 
   // Rotas de Investimentos
   { path: '/investimentos', component: MenuInvestimentos, meta: { requiresAuth: true } },
