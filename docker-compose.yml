@@ -1,6 +1,7 @@
 services:
   backend:
     build: ./backend
+    container_name: adm-os-backend
     restart: unless-stopped
     volumes:
       - adm_os_data:/data
@@ -19,6 +20,7 @@ services:
 
   adm_os_db:
     image: postgres:15-alpine
+    container_name: adm-os-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -41,6 +43,7 @@ services:
       context: ./frontend
       args:
         VITE_API_URL: ${VITE_API_URL}
+    container_name: adm-os-frontend
     restart: unless-stopped
     ports:
       - "172.17.0.1:8082:80"
