@@ -17,6 +17,7 @@ from config import settings
 from database import Base
 from models.user import User
 from models.history import History
+from models.workspace import Workspace, WorkspaceUser
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

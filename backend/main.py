@@ -21,6 +21,8 @@ app = FastAPI(
 )
 
 from database import engine, Base
+import models.user
+import models.workspace
 
 @app.on_event("startup")
 def startup_event():
