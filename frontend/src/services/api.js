@@ -40,19 +40,27 @@ async function api(endpoint, options = {}) {
 
         if (!response.ok) {
             if (response.status === 401) {
-                // Token invalid or expired
                 localStorage.removeItem('token');
                 window.location.href = '/login';
                 throw new Error("Sessão expirada. Faça login novamente.");
             }
             if (response.status === 404) throw new Error("Recurso não encontrado.");
-            const errorData = await response.json().catch(() => ({}));
+
+            // Lê como texto primeiro para poder debugar HTMLs de erro (ex: 500 Internal Server Error)
+            const rawText = await response.text();
+            let errorData = {};
+            try {
+                errorData = JSON.parse(rawText);
+            } catch (e) {
+                console.error("Erro Não-JSON Recebido:", rawText);
+                throw new Error(`Erro do Servidor (${response.status}): A resposta não pôde ser lida.`);
+            }
             throw new Error(errorData.detail || `Erro na requisição: ${response.status}`);
         }
 
         return await response.json();
     } catch (error) {
-        console.error("API Error:", error);
+        console.error("API Error Detailed:", error);
         throw error;
     }
 }
