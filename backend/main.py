@@ -20,6 +20,17 @@ app = FastAPI(
     redoc_url=None
 )
 
+from database import engine, Base
+
+@app.on_event("startup")
+def startup_event():
+    # Garante que as tabelas essenciais existam sem depender do Alembic no primeiro boot
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("Bando de dados inicializado com sucesso via create_all.")
+    except Exception as e:
+        print(f"Erro ao inicializar tabelas: {e}")
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

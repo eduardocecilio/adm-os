@@ -46,21 +46,13 @@ async function api(endpoint, options = {}) {
             }
             if (response.status === 404) throw new Error("Recurso não encontrado.");
 
-            // Lê como texto primeiro para poder debugar HTMLs de erro (ex: 500 Internal Server Error)
-            const rawText = await response.text();
-            let errorData = {};
-            try {
-                errorData = JSON.parse(rawText);
-            } catch (e) {
-                console.error("Erro Não-JSON Recebido:", rawText);
-                throw new Error(`Erro do Servidor (${response.status}): A resposta não pôde ser lida.`);
-            }
+            const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.detail || `Erro na requisição: ${response.status}`);
         }
 
         return await response.json();
     } catch (error) {
-        console.error("API Error Detailed:", error);
+        console.error("API Error:", error);
         throw error;
     }
 }
