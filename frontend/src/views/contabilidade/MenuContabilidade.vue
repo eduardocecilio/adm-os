@@ -1,9 +1,11 @@
 <script setup>
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import { menuContabilidade } from '../../constants/menus/menuContabilidade.js'
+import { getMenuContabilidade } from '../../constants/menus/menuContabilidade.js'
 import { useRouter } from 'vue-router'
+import { useWorkspace } from '../../composables/useWorkspace'
 
 const router = useRouter()
+const { activeWorkspace } = useWorkspace()
 
 const navegarPara = (rota) => {
   router.push(rota)
@@ -14,7 +16,7 @@ const navegarPara = (rota) => {
   <ModuleLayout 
     titulo="Contabilidade" 
     emoji="📊" 
-    :itensMenu="menuContabilidade"
+    :itensMenu="getMenuContabilidade(activeWorkspace?.id)"
   >
     <div class="dashboard-home">
       
@@ -25,7 +27,7 @@ const navegarPara = (rota) => {
 
       <div class="steps-container">
         
-        <div class="step-card" @click="navegarPara('/contabilidade/balanco')">
+        <div class="step-card" @click="navegarPara(`/${activeWorkspace?.id}/contabilidade/balanco`)">
           <div class="step-icon">1️⃣</div>
           <h3>Balanço Patrimonial</h3>
           <p>Cadastre os saldos de Ativos e Passivos.</p>
@@ -37,7 +39,7 @@ const navegarPara = (rota) => {
           </div>
         </div>
 
-        <div class="step-card" @click="navegarPara('/contabilidade/dre')">
+        <div class="step-card" @click="navegarPara(`/${activeWorkspace?.id}/contabilidade/dre`)">
           <div class="step-icon">2️⃣</div>
           <h3>DRE Gerencial</h3>
           <p>Estruture Receitas, Custos e Despesas.</p>
@@ -49,7 +51,7 @@ const navegarPara = (rota) => {
           </div>
         </div>
 
-        <div class="step-card highlight" @click="navegarPara('/contabilidade/indicadores')">
+        <div class="step-card highlight" @click="navegarPara(`/${activeWorkspace?.id}/contabilidade/indicadores`)">
           <div class="step-icon">3️⃣</div>
           <h3>Indicadores</h3>
           <p>Gere ROI, ROE, Ciclos e Liquidez automaticamente.</p>

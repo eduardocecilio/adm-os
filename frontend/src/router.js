@@ -75,17 +75,53 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+import api from './services/api'
+
+// Cache simples para não sobrecarregar as rotas com requests pro backend
+let cachedWorkspaces = null
+
+router.beforeEach(async (to, from, next) => {
   const token = localStorage.getItem('token')
 
+  // 1. Verificação de Autenticação Básica
   if (to.meta.requiresAuth && !token) {
-    next('/login')
-  } else if ((to.path === '/login' || to.path === '/register') && token) {
-    // If user is already logged in, redirect to home
-    next('/')
-  } else {
-    next()
+    return next('/login')
   }
+
+  // 2. Bloqueio de Login/Register para usuários já logados
+  if ((to.path === '/login' || to.path === '/register') && token) {
+    return next('/')
+  }
+
+  // 3. Verificação de Segurança de Workspace (Role-Based Routing Guard)
+  if (to.meta.requiresAuth && to.params && to.params.workspaceId) {
+    const requestedId = Number(to.params.workspaceId)
+
+    // Tenta ler do LocalStorage (injetado pelo Header/WorkspaceRedirector)
+    const storedWsList = localStorage.getItem('userWorkspaces')
+
+    try {
+      if (storedWsList) {
+        cachedWorkspaces = JSON.parse(storedWsList)
+      } else if (!cachedWorkspaces) {
+        // Fallback se o usuário der F5 muito rápido antes do LocalStorage salvar
+        cachedWorkspaces = await api('/workspaces/')
+      }
+
+      const hasAccess = cachedWorkspaces.some(w => w.id === requestedId)
+
+      if (!hasAccess) {
+        console.warn(`[Segurança] Usuário não tem acesso ao Workspace ${requestedId}. Redirecionando para segurança.`)
+        return next('/') // Manda de volta pro Redirector que vai achar o Workspace correto dele
+      }
+    } catch (err) {
+      console.error("Erro ao validar Workspace Authorization Guard", err)
+      cachedWorkspaces = null
+      return next('/login')
+    }
+  }
+
+  next()
 })
 
 export default router

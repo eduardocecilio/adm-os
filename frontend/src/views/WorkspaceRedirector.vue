@@ -10,6 +10,9 @@ onMounted(async () => {
     try {
         const workspaces = await api('/workspaces/')
         if (workspaces && workspaces.length > 0) {
+            // Save allowed workspaces to LocalStorage for the Router Guard to read synchronously
+            localStorage.setItem('userWorkspaces', JSON.stringify(workspaces))
+            
             // Find if there's a stored workspace ID that the user still has access to
             const storedWs = localStorage.getItem('activeWorkspace')
             let targetId = workspaces[0].id

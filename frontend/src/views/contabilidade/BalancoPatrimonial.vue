@@ -2,9 +2,12 @@
 import { ref, computed, onMounted } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
 import DropdownEditable from '../../components/DropdownEditable.vue' 
-import { menuContabilidade } from '../../constants/menus/menuContabilidade.js'
+import { getMenuContabilidade } from '../../constants/menus/menuContabilidade.js'
 import { opcoesBalanco } from '../../constants/options/contabilidade.js'
 import BtnExcel from '../../components/BtnExcel.vue'
+import { useWorkspace } from '../../composables/useWorkspace'
+
+const { activeWorkspace } = useWorkspace()
 
 // --- Estado dos Dados ---
 const balanco = ref({
@@ -96,7 +99,7 @@ const checarESalvar = () => {
 </script>
 
 <template>
-  <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="menuContabilidade">
+  <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="getMenuContabilidade(activeWorkspace?.id)">
     
     <div class="header-pagina">
       <h2>Editor de Balanço Patrimonial</h2>

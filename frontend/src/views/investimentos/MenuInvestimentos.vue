@@ -2,7 +2,10 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
 import ModalGrafico from '../../components/ModalGrafico.vue'
-import { menuInvestimentos } from '../../constants/menus/menuInvestimentos.js'
+import { getMenuInvestimentos } from '../../constants/menus/menuInvestimentos.js'
+import { useWorkspace } from '../../composables/useWorkspace'
+
+const { activeWorkspace } = useWorkspace()
 
 const periodoGrafico = ref('1M')
 const moedaBaseCripto = ref('BRL')
@@ -94,7 +97,7 @@ const btcDisplay = computed(() => moedaBaseCripto.value === 'BRL' ? dados.value.
 </script>
 
 <template>
-  <ModuleLayout titulo="Investimentos" emoji="📈" :itensMenu="menuInvestimentos">
+  <ModuleLayout titulo="Investimentos" emoji="📈" :itensMenu="getMenuInvestimentos(activeWorkspace?.id)">
     
     <ModalGrafico 
       :show="modalAberto" 

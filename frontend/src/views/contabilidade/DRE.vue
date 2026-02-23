@@ -1,10 +1,14 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
 import DropdownEditable from '../../components/DropdownEditable.vue'
 import BtnExcel from '../../components/BtnExcel.vue'
-import { menuContabilidade } from '../../constants/menus/menuContabilidade.js'
+import { getMenuContabilidade } from '../../constants/menus/menuContabilidade.js'
 import { opcoesDRE } from '../../constants/options/contabilidade.js'
+import api from '../../services/api.js'
+import { useWorkspace } from '../../composables/useWorkspace'
+
+const { activeWorkspace } = useWorkspace()
 
 // --- Estrutura de Dados (Pré-preenchida com os itens obrigatórios *) ---
 const dre = ref({
@@ -132,7 +136,7 @@ const limparHistorico = () => {
 </script>
 
 <template>
-  <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="menuContabilidade">
+  <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="getMenuContabilidade(activeWorkspace?.id)">
     
     <div class="header-pagina">
       <h2>DRE Gerencial</h2>

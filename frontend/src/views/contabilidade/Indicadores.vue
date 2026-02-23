@@ -3,7 +3,10 @@ import { ref, onMounted, computed } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
 import BtnExcel from '../../components/BtnExcel.vue'
 import ModalGrafico from '../../components/ModalGrafico.vue'
-import { menuContabilidade } from '../../constants/menus/menuContabilidade.js'
+import { getMenuContabilidade } from '../../constants/menus/menuContabilidade.js'
+import { useWorkspace } from '../../composables/useWorkspace'
+
+const { activeWorkspace } = useWorkspace()
 
 // --- ESTADOS ---
 const historicoBalanco = ref([])
@@ -188,7 +191,7 @@ const dadosParaExportar = computed(() => {
 </script>
 
 <template>
-  <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="menuContabilidade">
+  <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="getMenuContabilidade(activeWorkspace?.id)">
     
     <ModalGrafico 
       :show="modalAberto" 

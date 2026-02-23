@@ -1,13 +1,16 @@
 <script setup>
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import { menuEstrategia } from '../../constants/menus/menuEstrategia.js'
+import { getMenuEstrategia } from '../../constants/menus/menuEstrategia.js'
+import { useWorkspace } from '../../composables/useWorkspace'
+
+const { activeWorkspace } = useWorkspace()
 </script>
 
 <template>
   <ModuleLayout 
     titulo="Estratégia" 
     emoji="🎯" 
-    :itensMenu="menuEstrategia"
+    :itensMenu="getMenuEstrategia(activeWorkspace?.id)"
   >
     <div class="welcome-screen">
       <h2>Inteligência de Mercado</h2>

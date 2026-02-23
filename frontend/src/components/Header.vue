@@ -14,6 +14,7 @@ const loadWorkspaces = async () => {
   try {
     const data = await api('/workspaces/')
     workspaces.value = data
+    localStorage.setItem('userWorkspaces', JSON.stringify(data))
     
     // Fallback: If no active workspace is set but they exist, set the first one
     if (!activeWorkspace.value && data.length > 0) {

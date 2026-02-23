@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import { menuEstrategia } from '../../constants/menus/menuEstrategia.js'
+import { getMenuEstrategia } from '../../constants/menus/menuEstrategia.js'
+import { useWorkspace } from '../../composables/useWorkspace'
+
+const { activeWorkspace } = useWorkspace()
 
 // Dados do NPS
 const form = ref({
@@ -54,7 +57,7 @@ function calcularNPS() {
   <ModuleLayout 
     titulo="Estratégia" 
     emoji="🎯" 
-    :itensMenu="menuEstrategia"
+    :itensMenu="getMenuEstrategia(activeWorkspace?.id)"
   >
     <div class="ferramenta-wrapper">
       

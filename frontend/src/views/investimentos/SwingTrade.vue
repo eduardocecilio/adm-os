@@ -1,8 +1,11 @@
 <script setup>
 import { ref } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import { menuInvestimentos } from '../../constants/menus/menuInvestimentos.js'
+import { getMenuInvestimentos } from '../../constants/menus/menuInvestimentos.js'
 import investimentosService from '../../services/investimentosService.js'
+import { useWorkspace } from '../../composables/useWorkspace'
+
+const { activeWorkspace } = useWorkspace()
 
 const formatMoney = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -30,7 +33,7 @@ async function calcularNoBackend() {
   <ModuleLayout 
     titulo="Investimentos" 
     emoji="📈" 
-    :itensMenu="menuInvestimentos"
+    :itensMenu="getMenuInvestimentos(activeWorkspace?.id)"
   >
     
     <div class="ferramenta-wrapper">
