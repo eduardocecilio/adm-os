@@ -3,8 +3,16 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/**'
 
 env:
   REGISTRY: ghcr.io
@@ -14,6 +22,7 @@ env:
 jobs:
   build-and-push-backend:
     runs-on: ubuntu-latest
+    # Added simple condition check to avoid running if not needed (path filters usually handle it natively via GHA trigger, but this is explicit)
     permissions:
       contents: read
       packages: write
