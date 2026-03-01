@@ -1,6 +1,7 @@
 services:
   backend:
     build: ./backend
+    image: ghcr.io/eduardocecilio/adm-os-backend:latest
     container_name: adm-os-backend
     restart: unless-stopped
     volumes:
@@ -43,6 +44,7 @@ services:
       context: ./frontend
       args:
         VITE_API_URL: ${VITE_API_URL}
+    image: ghcr.io/eduardocecilio/adm-os-frontend:latest
     container_name: adm-os-frontend
     restart: unless-stopped
     ports:

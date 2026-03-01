@@ -41,9 +41,22 @@ EOF
 *Certifique-se que o `docker-compose.yml` está lendo essas variáveis ou ajuste o arquivo conforme necessário.*
 
 ### 3. Subir os Containers
-Compile e inicie os serviços em segundo plano:
+### Executando com imagens prontas do GitHub (Padrão/Mais Rápido)
+No dia a dia, após um `git push` na branch main, as imagens serão construídas pelo GitHub Actions e postadas no GHCR.
+
+Para atualizar o servidor:
 ```bash
-docker-compose up -d --build
+git pull origin main
+docker compose pull
+docker compose up -d
+```
+
+### Emergência / Build Local (Fallback)
+Se não estiver usando o CI/CD ou a Action falhar, você pode forçar a compilação local (que usará os Dockerfiles do `./backend` e `./frontend`):
+
+```bash
+git pull origin main
+docker compose up -d --build
 ```
 Isso iniciará:
 -   `adm-os-db` (PostgreSQL)
