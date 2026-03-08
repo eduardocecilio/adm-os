@@ -99,5 +99,3 @@ O deploy é acionado via push na branch `main`. No **Portainer**:
 ---
 
 **Desenvolvido por Eduardo Cecílio** 🚀
-
-teste
