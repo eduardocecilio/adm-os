@@ -10,11 +10,10 @@ services:
     environment:
       API_TOKEN: ${API_TOKEN}
       DATABASE_URL: ${DATABASE_URL}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      FRONTEND_URL: ${FRONTEND_URL}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      N8N_WEBHOOK_TOKEN: ${N8N_WEBHOOK_TOKEN}
+      EMAIL_FROM: ${EMAIL_FROM:-Adm OS <nao-responda@ceciliolab.com>}
+      FRONTEND_URL: ${FRONTEND_URL:-https://ceciliolab.com}
       ENV: ${ENV}
     depends_on:
       adm_os_db:
