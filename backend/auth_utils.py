@@ -1,18 +1,16 @@
-from typing import Optional, cast
+from typing import Optional
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-import os
-from dotenv import load_dotenv
+from config import settings
 
-load_dotenv()
-
-SECRET_KEY = os.getenv("SECRET_KEY", "SUA_CHAVE_SECRETA_MUITO_SEGURA_AQUI")
-RESET_SECRET_KEY = os.getenv("RESET_SECRET_KEY", "OUTRA_CHAVE_SECRETA_PARA_RESET")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
-RESET_TOKEN_EXPIRE_MINUTES = 30 # Token de reset expira em 30 min
-INVITE_TOKEN_EXPIRE_MINUTES = 10080 # Token de convite expira em 7 dias (7 * 24 * 60)
+RESET_TOKEN_EXPIRE_MINUTES = 30
+INVITE_TOKEN_EXPIRE_MINUTES = 10080  # 7 dias
+
+SECRET_KEY = settings.SECRET_KEY
+RESET_SECRET_KEY = settings.RESET_SECRET_KEY
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -51,7 +49,7 @@ def verify_reset_token(token: str) -> Optional[str]:
 def create_invite_token(email: str, workspace_id: int, role: str):
     expire = datetime.utcnow() + timedelta(minutes=INVITE_TOKEN_EXPIRE_MINUTES)
     to_encode = {
-        "sub": email, 
+        "sub": email,
         "workspace_id": workspace_id,
         "role": role,
         "exp": expire
@@ -65,10 +63,10 @@ def verify_invite_token(token: str) -> Optional[dict]:
         email = payload.get("sub")
         workspace_id = payload.get("workspace_id")
         role = payload.get("role")
-        
+
         if not email or not workspace_id or not role:
             return None
-            
+
         return {
             "email": str(email),
             "workspace_id": int(workspace_id),
@@ -76,4 +74,3 @@ def verify_invite_token(token: str) -> Optional[dict]:
         }
     except JWTError:
         return None
-

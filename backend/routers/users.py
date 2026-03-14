@@ -5,7 +5,6 @@ from models.user import User
 from dependencies import get_current_active_user
 from pydantic import BaseModel, EmailStr
 from auth_utils import get_password_hash
-from email_utils import send_email
 
 router = APIRouter(
     prefix="/users",

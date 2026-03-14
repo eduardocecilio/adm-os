@@ -4,6 +4,9 @@ from pydantic import BaseModel
 from typing import Dict, List, Any
 import pandas as pd
 import io
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/exportar", tags=["Exportação"])
 
@@ -144,5 +147,5 @@ def exportar_excel(payload: DadosExportacao):
         return StreamingResponse(output, headers=headers, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     except Exception as e:
-        print(f"Erro exportação: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Erro na exportação: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Erro interno ao gerar o arquivo de exportação.")

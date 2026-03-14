@@ -5,16 +5,15 @@ services:
     pull_policy: always
     container_name: adm-os-backend
     restart: unless-stopped
-    volumes:
-      - adm_os_data:/data
     environment:
-      API_TOKEN: ${API_TOKEN}
       DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      RESET_SECRET_KEY: ${RESET_SECRET_KEY}
       N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL}
       N8N_WEBHOOK_TOKEN: ${N8N_WEBHOOK_TOKEN}
       EMAIL_FROM: ${EMAIL_FROM:-Adm OS <nao-responda@ceciliolab.com>}
       FRONTEND_URL: ${FRONTEND_URL:-https://ceciliolab.com}
-      ENV: ${ENV}
+      ENV: ${ENV:-production}
     depends_on:
       adm_os_db:
         condition: service_healthy
@@ -31,7 +30,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -54,9 +53,7 @@ services:
       - backend
 
 volumes:
-  adm_os_data:
   postgres_data:
-
 
 networks:
   infra_net:

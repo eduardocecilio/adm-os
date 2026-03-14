@@ -34,6 +34,11 @@ onMounted(() => {
 })
 
 const handleRegister = async () => {
+    if (password.value.length < 8) {
+        error.value = "A senha deve ter pelo menos 8 caracteres."
+        return
+    }
+
     if (password.value !== confirmPassword.value) {
         error.value = "As senhas não coincidem."
         return

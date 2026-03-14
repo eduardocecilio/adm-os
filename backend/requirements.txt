@@ -13,7 +13,6 @@ pandas
 numpy
 yfinance
 openpyxl
-beautifulsoup4
 # Pydantic v2 compatibility
 pydantic>=2.0.0
 pydantic-settings>=2.0.0
