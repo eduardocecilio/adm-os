@@ -15,12 +15,10 @@ class Settings:
     ALIQ_EMOLUMENTOS = 0.000345
     ALIQ_IR_SWING_TRADE = 0.15
 
-    # Email config
-    SMTP_USER = os.getenv("SMTP_USER", "")
-    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-    SMTP_HOST = os.getenv("SMTP_HOST", "")
-    SMTP_PORT = int(os.getenv("SMTP_PORT", 465))
-    MAIL_FROM = os.getenv("MAIL_FROM", "suporte@ceciliolab.com")
+    # Email config (n8n webhook)
+    N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "")
+    N8N_WEBHOOK_TOKEN = os.getenv("N8N_WEBHOOK_TOKEN", "")
+    EMAIL_FROM = os.getenv("EMAIL_FROM", "Adm OS <nao-responda@ceciliolab.com>")
     
     # Frontend settings
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8082")

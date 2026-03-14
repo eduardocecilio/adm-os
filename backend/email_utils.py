@@ -1,28 +1,37 @@
-import smtplib
-from email.message import EmailMessage
-from pydantic import EmailStr
+import requests
+import logging
 from config import settings
-import asyncio
 
-async def send_email(subject: str, email_to: list[EmailStr], body: dict):
-    # Run synchronous SMTP in an executor to avoid blocking the event loop
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, _send_email_sync, subject, email_to, body)
-    return True
+logger = logging.getLogger(__name__)
 
-def _send_email_sync(subject: str, email_to: list[EmailStr], body: dict):
-    msg = EmailMessage()
-    msg['Subject'] = subject
-    msg['From'] = f"Adm OS <{settings.MAIL_FROM}>"
-    msg['To'] = ", ".join(email_to)
-    
-    content = body.get("message", "") + "\n\n" + body.get("link", "")
-    msg.set_content(content)
-    
+async def send_email(subject: str, email_to: list, body: dict):
+    if not settings.N8N_WEBHOOK_URL or not settings.N8N_WEBHOOK_TOKEN:
+        logger.warning("N8N_WEBHOOK_URL ou N8N_WEBHOOK_TOKEN não configurados. Email não enviado.")
+        return
+
+    message = body.get("message", "")
+    link = body.get("link", "")
+    html = f"""<p>{message}</p><p><a href="{link}">{link}</a></p>"""
+
+    payload = {
+        "from": settings.EMAIL_FROM,
+        "to": email_to[0] if len(email_to) == 1 else ", ".join(email_to),
+        "subject": subject,
+        "html": html,
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": settings.N8N_WEBHOOK_TOKEN,
+    }
+
     try:
-        # SMTP_SSL is appropriate for port 465 (SMTPS)
-        with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            server.send_message(msg)
+        response = requests.post(
+            settings.N8N_WEBHOOK_URL,
+            json=payload,
+            headers=headers,
+            timeout=10,
+        )
+        response.raise_for_status()
     except Exception as e:
-        print(f"Error sending email via smtplib: {e}")
+        logger.error(f"Erro ao enviar email via n8n webhook: {e}")
