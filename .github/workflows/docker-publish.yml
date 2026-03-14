@@ -2,13 +2,13 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - 'backend/**'
       - 'frontend/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - 'backend/**'
       - 'frontend/**'
@@ -22,7 +22,6 @@ env:
 jobs:
   build-and-push-backend:
     runs-on: ubuntu-latest
-    # Added simple condition check to avoid running if not needed (path filters usually handle it natively via GHA trigger, but this is explicit)
     permissions:
       contents: read
       packages: write
@@ -45,8 +44,10 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./backend
-        push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest
+        push: ${{ github.event_name == 'push' }}
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -76,7 +77,9 @@ jobs:
         context: ./frontend
         build-args: |
           VITE_API_URL=${{ secrets.VITE_API_URL }}
-        push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
+        push: ${{ github.event_name == 'push' }}
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max

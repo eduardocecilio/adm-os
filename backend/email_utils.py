@@ -1,3 +1,4 @@
+import asyncio
 import requests
 import logging
 from config import settings
@@ -26,12 +27,13 @@ async def send_email(subject: str, email_to: list, body: dict):
     }
 
     try:
-        response = requests.post(
-            settings.N8N_WEBHOOK_URL,
-            json=payload,
-            headers=headers,
-            timeout=10,
+        await asyncio.to_thread(
+            lambda: requests.post(
+                settings.N8N_WEBHOOK_URL,
+                json=payload,
+                headers=headers,
+                timeout=10,
+            ).raise_for_status()
         )
-        response.raise_for_status()
     except Exception as e:
         logger.error(f"Erro ao enviar email via n8n webhook: {e}")

@@ -160,12 +160,12 @@ def remove_member(
         WorkspaceUser.workspace_id == workspace.id,
         WorkspaceUser.user_id == user_id
     ).first()
-    
-    if getattr(link, 'role', None) == WorkspaceRole.OWNER and workspace_data["role"] != WorkspaceRole.OWNER:
-        raise HTTPException(status_code=403, detail="Apenas o criador (OWNER) pode remover outro dono.")
-        
+
     if not link:
         raise HTTPException(status_code=404, detail="Usuário não encontrado neste workspace.")
+
+    if link.role == WorkspaceRole.OWNER and workspace_data["role"] != WorkspaceRole.OWNER:
+        raise HTTPException(status_code=403, detail="Apenas o criador (OWNER) pode remover outro dono.")
         
     db.delete(link)
     db.commit()
