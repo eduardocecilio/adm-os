@@ -33,8 +33,8 @@ const handleResetPassword = async () => {
         return
     }
 
-    if (password.value.length < 6) {
-        error.value = "A senha deve ter pelo menos 6 caracteres."
+    if (password.value.length < 8) {
+        error.value = "A senha deve ter pelo menos 8 caracteres."
         return
     }
 
@@ -107,7 +107,7 @@ const handleResetPassword = async () => {
                 id="password" 
                 v-model="password" 
                 required 
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 :disabled="!token || !!success"
               >
             </div>

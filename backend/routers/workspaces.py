@@ -11,8 +11,12 @@ router = APIRouter(prefix="/workspaces", tags=["workspaces"])
 
 @router.post("/", response_model=WorkspaceOut, status_code=status.HTTP_201_CREATED)
 def create_workspace(workspace_in: WorkspaceCreate, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    # Create the workspace
-    workspace = Workspace(name=workspace_in.name)
+    name = workspace_in.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="O nome do workspace não pode ser vazio.")
+    if len(name) > 100:
+        raise HTTPException(status_code=400, detail="O nome do workspace deve ter no máximo 100 caracteres.")
+    workspace = Workspace(name=name)
     db.add(workspace)
     db.commit()
     db.refresh(workspace)
@@ -118,7 +122,12 @@ def update_workspace(
     db: Session = Depends(get_db)
 ):
     workspace = workspace_data["workspace"]
-    workspace.name = workspace_in.name
+    name = workspace_in.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="O nome do workspace não pode ser vazio.")
+    if len(name) > 100:
+        raise HTTPException(status_code=400, detail="O nome do workspace deve ter no máximo 100 caracteres.")
+    workspace.name = name
     db.commit()
     db.refresh(workspace)
     return workspace
@@ -164,8 +173,15 @@ def remove_member(
     if not link:
         raise HTTPException(status_code=404, detail="Usuário não encontrado neste workspace.")
 
-    if link.role == WorkspaceRole.OWNER and workspace_data["role"] != WorkspaceRole.OWNER:
-        raise HTTPException(status_code=403, detail="Apenas o criador (OWNER) pode remover outro dono.")
+    if link.role == WorkspaceRole.OWNER:
+        if workspace_data["role"] != WorkspaceRole.OWNER:
+            raise HTTPException(status_code=403, detail="Apenas o criador (OWNER) pode remover outro dono.")
+        owner_count = db.query(WorkspaceUser).filter(
+            WorkspaceUser.workspace_id == workspace.id,
+            WorkspaceUser.role == WorkspaceRole.OWNER
+        ).count()
+        if owner_count <= 1:
+            raise HTTPException(status_code=400, detail="Não é possível remover o único dono do workspace.")
         
     db.delete(link)
     db.commit()

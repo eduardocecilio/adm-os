@@ -26,9 +26,15 @@ class Settings:
 settings = Settings()
 
 if not settings.SECRET_KEY:
-    import warnings
-    warnings.warn("SECRET_KEY não definida! Configure a variável de ambiente antes de rodar em produção.", RuntimeWarning, stacklevel=2)
+    raise RuntimeError(
+        "SECRET_KEY não definida. "
+        "Gere um valor seguro: python -c \"import secrets; print(secrets.token_hex(32))\" "
+        "e defina no arquivo .env"
+    )
 
 if not settings.RESET_SECRET_KEY:
-    import warnings
-    warnings.warn("RESET_SECRET_KEY não definida! Configure a variável de ambiente antes de rodar em produção.", RuntimeWarning, stacklevel=2)
+    raise RuntimeError(
+        "RESET_SECRET_KEY não definida. "
+        "Gere um valor seguro: python -c \"import secrets; print(secrets.token_hex(32))\" "
+        "e defina no arquivo .env"
+    )
