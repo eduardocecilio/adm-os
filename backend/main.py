@@ -33,7 +33,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://adm.ceciliolab.com"
+    os.getenv("FRONTEND_URL", "http://localhost:8082"),
 ]
 
 app.add_middleware(
