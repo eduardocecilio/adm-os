@@ -1,101 +1,80 @@
-# 📊 AdmOS - Inteligência Corporativa (Core)
+# AdmOS - Inteligência Corporativa
 
-> **Ambiente de Produção e Desenvolvimento Full Stack**
-
-Este é o repositório principal do **AdmOS**, uma plataforma de BI focada em gestão financeira, contábil e análise de ativos. A arquitetura foi desenhada para ser modular, facilitando a inclusão de novos modelos de cálculo e integrações de API.
+> Plataforma de BI focada em gestão financeira, contábil e análise de ativos.
 
 ---
 
-## 🚀 Quick Start (Docker)
-
-A maneira mais fácil e recomendada de rodar o projeto é via Docker. Isso garante que todas as dependências (Python, Node.js, Banco de Dados) estejam isoladas e configuradas corretamente.
+## Quick Start (Docker)
 
 ```bash
-# Na raiz do projeto
-docker-compose up --build
+cp .env.example .env
+# edite o .env com seus valores
+docker compose up --build
 ```
-- **Frontend:** [http://localhost:8082](http://localhost:8082) (ou `https://adm.ceciliolab.com` em produção)
-- **Backend:** Acessível internamente via container ou `/api` (não exposto diretamente).
+
+Acesse: [http://localhost:8082](http://localhost:8082)
 
 ---
 
-## 🛠️ Arquitetura
+## Configuração
 
-O sistema é dividido em camadas independentes para garantir a escalabilidade:
+### 1. Variáveis de Ambiente
 
-### 1. Backend (FastAPI + Pandas)
-*   **Processamento:** Engine central em Python utilizando `Pandas` para cálculos matriciais e `NumPy` para lógica financeira.
-*   **Segurança:** Implementação de dependência global `x-token` via `APIKeyHeader`.
-*   **Ambiente:** Variáveis sensíveis gerenciadas via `backend/.env`.
-*   **Testes:** Suíte automatizada com `pytest`.
-
-### 2. Frontend (Vue.js 3 + Vite)
-*   **Componentização:** Interface modular baseada em `ModuleLayout`.
-*   **API:** Serviço centralizado (`api.js`) com fallback inteligente para desenvolvimento e produção.
-*   **Visualização:** Renderização dinâmica de gráficos SVG e Sparklines.
-
-### 3. Infraestrutura (DevOps)
-*   **Docker:** Containerização completa.
-*   **Nginx:** Atua como servidor de arquivos estáticos e proxy reverso para a API, eliminando a necessidade de CORS complexo em produção.
-
----
-
-## ⚙️ Configuração do Ambiente
-
-### Variáveis de Ambiente (`.env`)
-
-Certifique-se de criar os arquivos `.env` na raiz das pastas correspondentes:
-
-**Backend (`backend/.env`):**
-```env
-API_TOKEN=seu_token_secreto
-DATABASE_URL=sqlite:///./adm_os.db
-```
-
-**Frontend (`frontend/.env.development`):**
-```env
-VITE_API_URL=/api
-VITE_API_TOKEN=seu_token_secreto
-```
-
----
-
-## 📦 Gestão de Dependências
-
-### Backend (Python)
-Sempre que adicionar uma biblioteca, atualize o manifesto para garantir que o container Docker instale tudo corretamente:
+Copie o arquivo de exemplo e preencha com seus valores:
 
 ```bash
-# Dentro da pasta backend
-pip freeze > requirements.txt
+cp .env.example .env
 ```
 
-### Frontend (Node.js)
+| Variável | Descrição |
+|----------|-----------|
+| `SECRET_KEY` | Chave JWT — gere com `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `RESET_SECRET_KEY` | Chave JWT para reset de senha — gere da mesma forma |
+| `DATABASE_URL` | URL completa do PostgreSQL |
+| `POSTGRES_USER` | Usuário do banco |
+| `POSTGRES_PASSWORD` | Senha do banco |
+| `POSTGRES_DB` | Nome do banco |
+| `FRONTEND_URL` | URL pública do frontend (usada em links de e-mail e CORS) |
+| `N8N_WEBHOOK_URL` | Endpoint do n8n para envio de e-mails |
+| `N8N_WEBHOOK_TOKEN` | Token de autenticação do webhook n8n |
+| `EMAIL_FROM` | Remetente dos e-mails (ex: `Sistema <nao-responda@seudominio.com>`) |
+| `VITE_API_URL` | Prefixo da API no frontend (padrão: `/api`) |
+
+### 2. Subir os containers
+
 ```bash
-# Dentro da pasta frontend
-npm install
+docker compose up -d
 ```
 
 ---
 
-## 🧪 Testes Automatizados
+## Arquitetura
 
-Para rodar os testes do backend dentro do container (garantindo o mesmo ambiente de produção):
+```
+[Cloudflare Tunnel / Nginx] → [frontend:80] → [backend:8000] → [db:5432]
+```
+
+- **Backend** (FastAPI + Python): API REST, autenticação JWT, cálculos financeiros
+- **Frontend** (Vue.js 3 + Vite + Nginx): SPA com proxy reverso para `/api`
+- **Banco** (PostgreSQL 15): dados isolados em rede interna Docker
+- **Rede**: `frontend` exposto na `infra_net` para acesso via Cloudflare Tunnel; `backend` e `db` apenas na rede interna
+
+---
+
+## Testes
 
 ```bash
-docker-compose exec backend python -m pytest
+docker compose exec backend python -m pytest
 ```
 
 ---
 
-## 🚢 Deploy e Produção
+## Deploy com Portainer
 
-O deploy é acionado via push na branch `main`. No **Portainer**:
-
-1.  Acesse a Stack `adm-os`.
-2.  Clique em **Update the stack**.
-3.  Ative a opção **"Re-pull image"** para reconstruir os containers.
+1. Crie uma Stack com o conteúdo do `docker-compose.yml`
+2. Configure as variáveis de ambiente na aba **Environment variables**
+3. Para atualizar: **Update the stack** → marque **Re-pull image**
 
 ---
 
-**Desenvolvido por Eduardo Cecílio** 🚀
+**Desenvolvido por Eduardo Cecílio**

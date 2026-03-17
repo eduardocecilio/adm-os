@@ -1,90 +1,90 @@
-# 🚀 Guia de Implantação (AdmOS) - Ubuntu Server
+# Guia de Deploy - AdmOS
 
-Este guia descreve como implantar o projeto **AdmOS** (versão com Autenticação e PostgreSQL) em um servidor Ubuntu usando Docker.
+Deploy em servidor Ubuntu com Docker.
 
-## ✅ Pré-requisitos
--   Servidor Ubuntu (20.04 ou 22.04 LTS).
--   Acesso SSH.
--   Git instalado.
--   Docker e Docker Compose instalados.
+---
 
-### 1. Instalar Docker e Docker Compose
+## Pré-requisitos
+
+- Ubuntu 20.04 / 22.04 LTS
+- Docker e Docker Compose instalados
+
 ```bash
-sudo apt update
-sudo apt install -y docker.io docker-compose
+sudo apt update && sudo apt install -y docker.io docker-compose
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
-# (Faça logout e login novamente para aplicar permissões de grupo)
+# logout/login para aplicar o grupo
 ```
 
-## 📦 Implantação
+---
 
-### 1. Clonar o Repositório
+## Deploy
+
+### 1. Clonar o repositório
+
 ```bash
-git clone https://github.com/seusrouser/adm-os.git
+git clone https://github.com/SEU_USUARIO/adm-os.git
 cd adm-os
 ```
 
-### 2. Configurar Variáveis de Ambiente
-Crie um arquivo `.env` baseado no exemplo (se houver) ou configure manualmente:
+### 2. Configurar variáveis de ambiente
+
 ```bash
-# Backend .env (backend/.env) ou raiz se configurado pelo docker-compose
-# Neste projeto, o docker-compose repassa variáveis ou você pode criar um .env na raiz (recomendado)
-
-cat <<EOF > .env
-API_TOKEN=sua_chave_secreta_super_segura_para_jwt
-POSTGRES_USER=admos
-POSTGRES_PASSWORD=admos_password_segura
-POSTGRES_DB=admos_db
-EOF
+cp .env.example .env
 ```
-*Certifique-se que o `docker-compose.yml` está lendo essas variáveis ou ajuste o arquivo conforme necessário.*
 
-### 3. Subir os Containers
-### Executando com imagens prontas do GitHub (Padrão/Mais Rápido)
-No dia a dia, após um `git push` na branch main, as imagens serão construídas pelo GitHub Actions e postadas no GHCR.
+Edite o `.env` e preencha todos os valores. Veja a tabela no README para descrição de cada variável.
 
-Para atualizar o servidor:
+Gere as chaves JWT:
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+### 3. Subir os containers
+
+```bash
+docker compose up -d
+```
+
+Verifique se estão rodando:
+```bash
+docker compose ps
+```
+
+### 4. Migrations do banco
+
+Na primeira vez:
+```bash
+docker compose exec backend alembic upgrade head
+```
+
+---
+
+## Cloudflare Tunnel (opcional)
+
+Se usar Cloudflare Tunnel, o frontend está na rede `infra_net`. Configure a regra no dashboard:
+
+```
+seu-dominio.com → http://adm-os-frontend:80
+```
+
+---
+
+## Atualização
+
 ```bash
 git pull origin main
 docker compose pull
 docker compose up -d
+docker compose exec backend alembic upgrade head
 ```
 
-### Emergência / Build Local (Fallback)
-Se não estiver usando o CI/CD ou a Action falhar, você pode forçar a compilação local (que usará os Dockerfiles do `./backend` e `./frontend`):
+---
+
+## Build local (sem CI/CD)
 
 ```bash
 git pull origin main
 docker compose up -d --build
-```
-Isso iniciará:
--   `adm-os-db` (PostgreSQL)
--   `adm-os-backend` (FastAPI)
--   `adm-os-frontend` (Vue.js + Nginx)
-
-### 4. Executar Migrações do Banco de Dados
-Para criar as tabelas iniciais (Users, History, etc), execute o Alembic dentro do container backend:
-```bash
-docker-compose exec backend alembic upgrade head
-```
-
-### 5. Verificar Status
-```bash
-docker-compose ps
-```
-Todos os serviços devem estar "Up".
-
-### 6. Acessar
-Abra seu navegador e acesse o IP do servidor:
-`http://SEU_IP_DO_SERVIDOR:8082`
-
-Você verá a tela de Login.
-
-## 🔄 Atualização (Deploy Contínuo Manual)
-Para atualizar o código no futuro:
-```bash
-git pull origin main
-docker-compose up -d --build
-docker-compose exec backend alembic upgrade head
+docker compose exec backend alembic upgrade head
 ```
