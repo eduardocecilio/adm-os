@@ -46,10 +46,10 @@ services:
     depends_on:
       - backend
     networks:
-      - internal
-      - infra_net:
-          aliases:
-            - adm-os
+      internal: {}
+      infra_net:
+        aliases:
+          - adm-os
 
 volumes:
   postgres_data:
