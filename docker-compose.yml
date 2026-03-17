@@ -1,6 +1,5 @@
 services:
   backend:
-    build: ./backend
     image: ghcr.io/eduardocecilio/adm-os-backend:latest
     pull_policy: always
     container_name: adm-os-backend
@@ -11,11 +10,14 @@ services:
       RESET_SECRET_KEY: ${RESET_SECRET_KEY}
       N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL}
       N8N_WEBHOOK_TOKEN: ${N8N_WEBHOOK_TOKEN}
-      EMAIL_FROM: ${EMAIL_FROM:-Adm OS <nao-responda@ceciliolab.com>}
-      FRONTEND_URL: ${FRONTEND_URL:-https://ceciliolab.com}
+      EMAIL_FROM: ${EMAIL_FROM}
+      FRONTEND_URL: ${FRONTEND_URL}
+      ENV: production
     depends_on:
       adm_os_db:
         condition: service_healthy
+    networks:
+      - internal
 
   adm_os_db:
     image: postgres:15-alpine
@@ -34,27 +36,25 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - default
-      - infra_net
+      - internal
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: ${VITE_API_URL}
     image: ghcr.io/eduardocecilio/adm-os-frontend:latest
     pull_policy: always
     container_name: adm-os-frontend
     restart: unless-stopped
-    ports:
-      - "${BIND_IP:-172.17.0.1}:8082:80"
     depends_on:
       - backend
+    networks:
+      - internal
+      - infra_net
 
 volumes:
   postgres_data:
 
 networks:
+  internal:
+    driver: bridge
   infra_net:
     external: true
     name: infra_net
