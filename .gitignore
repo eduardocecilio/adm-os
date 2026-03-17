@@ -53,6 +53,7 @@ venv.bak/
 .env
 .env.local
 .env.*.local
+docker-compose.override.yml
 
 # PERMITE os arquivos de configuração de exemplo do Frontend
 !.env.example
