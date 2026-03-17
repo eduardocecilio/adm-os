@@ -47,7 +47,9 @@ services:
       - backend
     networks:
       - internal
-      - infra_net
+      - infra_net:
+          aliases:
+            - adm-os
 
 volumes:
   postgres_data:
