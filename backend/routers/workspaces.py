@@ -42,7 +42,7 @@ def list_my_workspaces(current_user: User = Depends(get_current_active_user), db
         ws = wu.workspace
         # Combine the workspace model with the specific user's role
         results.append({
-            "id": ws.id,
+            "id": ws.uuid,
             "name": ws.name,
             "created_at": ws.created_at,
             "updated_at": ws.updated_at,
@@ -52,7 +52,7 @@ def list_my_workspaces(current_user: User = Depends(get_current_active_user), db
     return results
 
 @router.get("/{workspace_id}", response_model=WorkspaceWithRole)
-def get_workspace(workspace_id: int, workspace_data: dict = Depends(get_workspace_access)):
+def get_workspace(workspace_id: str, workspace_data: dict = Depends(get_workspace_access)):
     # workspace_data is returned by the dependency and contains both workspace and role
     return workspace_data
 
@@ -62,7 +62,7 @@ from config import settings
 
 @router.post("/{workspace_id}/invite", status_code=status.HTTP_200_OK)
 async def invite_user(
-    workspace_id: int,
+    workspace_id: str,
     invite_data: WorkspaceInvite, 
     workspace_data: dict = Depends(get_workspace_admin_access), 
     db: Session = Depends(get_db)
@@ -116,7 +116,7 @@ async def invite_user(
 
 @router.put("/{workspace_id}", response_model=WorkspaceOut)
 def update_workspace(
-    workspace_id: int,
+    workspace_id: str,
     workspace_in: WorkspaceUpdate,
     workspace_data: dict = Depends(get_workspace_admin_access),
     db: Session = Depends(get_db)
@@ -134,7 +134,7 @@ def update_workspace(
 
 @router.get("/{workspace_id}/members", response_model=List[WorkspaceMemberOut])
 def list_workspace_members(
-    workspace_id: int,
+    workspace_id: str,
     workspace_data: dict = Depends(get_workspace_access),
     db: Session = Depends(get_db)
 ):
@@ -154,7 +154,7 @@ def list_workspace_members(
 
 @router.delete("/{workspace_id}/members/{user_id}", status_code=status.HTTP_200_OK)
 def remove_member(
-    workspace_id: int,
+    workspace_id: str,
     user_id: int,
     workspace_data: dict = Depends(get_workspace_admin_access),
     current_user: User = Depends(get_current_active_user),

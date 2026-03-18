@@ -38,7 +38,7 @@ export function useWorkspace() {
         // Agora damos preferência absoluta para a URL se estivermos numa rota configurada,
         // senão pegamos o cacheado em memoria.
         if (route && route.params && route.params.workspaceId) {
-            return Number(route.params.workspaceId)
+            return route.params.workspaceId
         }
         return activeWorkspace.value ? activeWorkspace.value.id : null
     }

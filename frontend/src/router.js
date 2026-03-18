@@ -95,7 +95,7 @@ router.beforeEach(async (to, from, next) => {
 
   // 3. Verificação de Segurança de Workspace (Role-Based Routing Guard)
   if (to.meta.requiresAuth && to.params && to.params.workspaceId) {
-    const requestedId = Number(to.params.workspaceId)
+    const requestedId = to.params.workspaceId
 
     // Tenta ler do LocalStorage (injetado pelo Header/WorkspaceRedirector)
     const storedWsList = localStorage.getItem('userWorkspaces')
@@ -108,7 +108,7 @@ router.beforeEach(async (to, from, next) => {
         cachedWorkspaces = await api('/workspaces/')
       }
 
-      const hasAccess = cachedWorkspaces.some(w => w.id === requestedId)
+      const hasAccess = cachedWorkspaces.some(w => String(w.id) === String(requestedId))
 
       if (!hasAccess) {
         console.warn(`[Segurança] Usuário não tem acesso ao Workspace ${requestedId}. Redirecionando para segurança.`)

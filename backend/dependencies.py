@@ -32,23 +32,31 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-from models.workspace import WorkspaceUser, WorkspaceRole
+from models.workspace import Workspace, WorkspaceUser, WorkspaceRole
 
 async def get_workspace_access(
-    workspace_id: int, 
+    workspace_id: str, 
     current_user: User = Depends(get_current_active_user), 
     db: Session = Depends(get_db)
 ):
     """Dependency that ensures the authenticated user is a member of the requested workspace."""
+    # Look up workspace by UUID
+    workspace = db.query(Workspace).filter(Workspace.uuid == workspace_id).first()
+    if not workspace:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Workspace não encontrado"
+        )
+    
     link = db.query(WorkspaceUser).filter(
-        WorkspaceUser.workspace_id == workspace_id,
+        WorkspaceUser.workspace_id == workspace.id,
         WorkspaceUser.user_id == current_user.id
     ).first()
     
     if not link:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Você não tem acesso a este workspace ou ele não existe"
+            detail="Você não tem acesso a este workspace"
         )
         
     return {

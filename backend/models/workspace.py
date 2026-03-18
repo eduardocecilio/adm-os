@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from database import Base
 import enum
 import datetime
+import uuid as uuid_mod
 
 class WorkspaceRole(str, enum.Enum):
     OWNER = "OWNER"
@@ -14,6 +15,7 @@ class Workspace(Base):
     __tablename__ = "workspaces"
 
     id = Column(Integer, primary_key=True, index=True)
+    uuid = Column(String, unique=True, index=True, default=lambda: str(uuid_mod.uuid4()), nullable=False)
     name = Column(String, index=True, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
