@@ -2,9 +2,11 @@
 import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import api from '../services/api'
+import { useWorkspace } from '../composables/useWorkspace'
 
 const router = useRouter()
 const route = useRoute()
+const { setActiveWorkspace } = useWorkspace()
 
 onMounted(async () => {
     try {
@@ -15,23 +17,25 @@ onMounted(async () => {
             
             // Find if there's a stored workspace ID that the user still has access to
             const storedWs = localStorage.getItem('activeWorkspace')
-            let targetId = workspaces[0].id
+            let targetWorkspace = workspaces[0]
 
             if (storedWs) {
                 try {
                     const parsed = JSON.parse(storedWs)
-                    if (workspaces.find(w => w.id === parsed.id)) {
-                        targetId = parsed.id
+                    const found = workspaces.find(w => String(w.id) === String(parsed.id))
+                    if (found) {
+                        targetWorkspace = found
                     }
                 } catch (e) {
                     console.error("Error parsing stored workspace", e)
                 }
             }
             
+            // Set the active workspace globally so components (Home.vue, Header.vue) can use it
+            setActiveWorkspace(targetWorkspace)
+            
             // Redirect to the dashboard of the selected workspace
-            // If they were trying to access a specific nested route (like invite link), 
-            // the router logic in beforeEach handles that, this is just for the root "/"
-            router.replace(`/${targetId}/dashboard`)
+            router.replace(`/${targetWorkspace.id}/dashboard`)
         } else {
             // No workspaces found. Technically shouldn't happen due to auto-creation
             router.replace('/workspaces/new')
