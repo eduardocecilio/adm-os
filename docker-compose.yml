@@ -37,6 +37,7 @@ services:
       retries: 10
     networks:
       - internal
+      - infra_net
 
   frontend:
     image: ghcr.io/eduardocecilio/adm-os-frontend:latest
