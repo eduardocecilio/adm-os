@@ -13,9 +13,15 @@ services:
       EMAIL_FROM: ${EMAIL_FROM}
       FRONTEND_URL: ${FRONTEND_URL}
       ENV: production
+      TZ: America/Sao_Paulo
     depends_on:
       adm_os_db:
         condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - internal
 
@@ -35,6 +41,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - internal
       - infra_net
@@ -44,8 +55,15 @@ services:
     pull_policy: always
     container_name: adm-os-frontend
     restart: unless-stopped
+    environment:
+      TZ: America/Sao_Paulo
     depends_on:
       - backend
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       internal: {}
       infra_net:
