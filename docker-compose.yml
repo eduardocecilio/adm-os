@@ -91,6 +91,8 @@ services:
 
 volumes:
   postgres_data:
+    external: true
+    name: adm-os_postgres_data
 
 networks:
   internal:
