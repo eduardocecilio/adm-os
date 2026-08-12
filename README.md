@@ -1,12 +1,17 @@
 # AdmOS — inteligência corporativa
 
-> **Projeto arquivado.** Este repositório é uma referência histórica e uma
-> demonstração local. Não recebe manutenção ativa, não possui suporte e **não
-> deve ser exposto à internet nem usado em produção** sem uma nova revisão de
-> segurança e arquitetura.
+O AdmOS é uma plataforma web de inteligência corporativa para organizar
+informações financeiras, contábeis, estratégicas e de investimentos. O projeto
+reúne uma API FastAPI, uma SPA Vue e PostgreSQL em uma arquitetura full stack.
 
-O AdmOS reúne uma API FastAPI, uma SPA Vue e PostgreSQL para experimentos de
-gestão financeira, contábil e análise de ativos.
+## Funcionalidades
+
+- organizações, membros e papéis de acesso por workspace;
+- autenticação, recuperação de senha e convites por e-mail;
+- balanço patrimonial, DRE, indicadores e comparação de períodos;
+- análises de NPS e de operações de swing trade;
+- exportação de relatórios em XLSX;
+- ambiente reproduzível com Docker Compose, migrations e CI.
 
 ## Quick Start local com Docker
 
@@ -23,7 +28,7 @@ Cole os três valores gerados, respectivamente, em `SECRET_KEY`,
 `RESET_SECRET_KEY` e `POSTGRES_PASSWORD` no `.env`. Eles devem ser diferentes.
 Os campos vazios de integração com e-mail podem continuar vazios.
 
-Valide e inicie a demonstração:
+Valide e inicie a aplicação:
 
 ```bash
 docker compose config --quiet
@@ -47,7 +52,7 @@ docker compose logs -f
 docker compose down
 ```
 
-Para também apagar o banco local da demonstração:
+Para também apagar o banco local da aplicação:
 
 ```bash
 docker compose down --volumes
@@ -97,8 +102,8 @@ navegador -> 127.0.0.1:8082 -> frontend (Nginx)
 - **Banco:** PostgreSQL 15 em volume e rede gerenciados pelo Compose, sem porta
   publicada no host.
 
-Os cálculos e indicadores deste projeto são demonstrativos e não constituem
-aconselhamento financeiro, contábil, fiscal ou de investimento.
+Os cálculos e indicadores devem ser validados conforme o contexto de uso e não
+constituem aconselhamento financeiro, contábil, fiscal ou de investimento.
 
 ## Verificação
 
@@ -118,10 +123,10 @@ docker compose run --rm --no-deps \
 ## Segurança, operação e direitos
 
 Leia [SECURITY.md](SECURITY.md) antes de executar ou estudar o projeto. O guia
-[DEPLOY.md](DEPLOY.md) documenta apenas a avaliação local e os requisitos que
-faltam para qualquer eventual implantação real.
+[DEPLOY.md](DEPLOY.md) documenta a execução local e os requisitos para uma
+eventual implantação externa.
 
-Este snapshot não inclui uma licença de software. Tornar o código visível não
+Este repositório não inclui uma licença de software. Tornar o código visível não
 concede automaticamente permissão para copiar, modificar ou redistribuir; veja
 [NOTICE](NOTICE).
 

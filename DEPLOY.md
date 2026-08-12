@@ -1,12 +1,12 @@
 # Execução e implantação do AdmOS
 
-## Estado do projeto
+## Escopo
 
-O AdmOS está arquivado. O procedimento suportado neste snapshot é somente uma
-**avaliação local em loopback**. Não há configuração oficial para servidor,
-Portainer, Cloudflare Tunnel, Kubernetes ou qualquer exposição pública.
+O Compose versionado configura uma **execução local em loopback**. Uma
+implantação em servidor, Portainer, Cloudflare Tunnel, Kubernetes ou qualquer
+exposição pública exige os controles adicionais descritos neste documento.
 
-## Avaliação local
+## Execução local
 
 Pré-requisitos:
 
@@ -45,13 +45,13 @@ docker compose down
 ```
 
 O volume `postgres_data` é preservado por padrão. Para remover também todos os
-dados locais desta demonstração:
+dados locais da aplicação:
 
 ```bash
 docker compose down --volumes
 ```
 
-## Atualização do snapshot local
+## Atualização do ambiente local
 
 ```bash
 git pull --ff-only
@@ -64,20 +64,21 @@ a partir dos Dockerfiles versionados.
 
 ## Antes de qualquer implantação real
 
-Uma eventual retomada exige, no mínimo:
+Uma implantação externa exige, no mínimo:
 
 1. nova auditoria da autenticação, autorização por workspace e ciclo de vida de
    tokens;
 2. revisão e atualização de todas as dependências e imagens-base;
-3. gerenciamento externo de segredos e rotação de qualquer credencial histórica;
+3. gerenciamento externo de segredos e rotação de qualquer credencial
+   potencialmente exposta;
 4. TLS, proxy reverso, política CORS e cabeçalhos ajustados ao domínio real;
 5. isolamento de rede, backups testados, observabilidade e plano de recuperação;
 6. fluxo de e-mail próprio, com credenciais dedicadas e sem segredos no frontend;
 7. CI com versões de ações e dependências revisadas, além de análise de segurança;
 8. definição de manutenção, suporte e resposta a vulnerabilidades.
 
-O bloqueio de cadastro público e a revogação de tokens deste snapshot são
-defesas adicionais, não uma autorização para expor a aplicação.
+O bloqueio de cadastro público e a revogação de tokens implementados no projeto
+são defesas adicionais, não uma autorização para expor a aplicação.
 
 Até esses itens serem concluídos e verificados, não encaminhe portas, não anexe
 o stack a redes de proxy e não publique a aplicação na internet.

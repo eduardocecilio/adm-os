@@ -92,13 +92,13 @@ async def invite_user(
         if existing_link:
             raise HTTPException(status_code=400, detail="Este usuário já faz parte do workspace.")
 
-        # This archived snapshot has no authenticated invitation-acceptance flow.
+        # No authenticated invitation-acceptance flow is implemented yet.
         # Fail closed instead of attaching an existing account without its consent.
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
-                "Convites para usuários já cadastrados estão desativados nesta "
-                "versão arquivada."
+                "Convites para usuários já cadastrados exigem um fluxo de "
+                "aceite que ainda não está disponível."
             ),
         )
 

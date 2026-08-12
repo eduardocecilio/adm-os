@@ -43,7 +43,7 @@ def register(request: Request, user: UserCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_403_FORBIDDEN,
             detail=(
                 "Cadastro público desativado. Use um convite ou execute a "
-                "demonstração em localhost."
+                "aplicação em localhost."
             ),
         )
 

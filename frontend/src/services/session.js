@@ -7,7 +7,7 @@ const USER_SCOPED_STORAGE_KEYS = [
 
 export function clearUserSession() {
     sessionStorage.removeItem('token');
-    // Remove tokens written by older snapshots during the security migration.
+    // Remove tokens written by builds that predate the sessionStorage migration.
     localStorage.removeItem('token');
     USER_SCOPED_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
 }

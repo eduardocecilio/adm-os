@@ -2,8 +2,8 @@ FROM python:3.11.15-slim-bookworm
 
 WORKDIR /app
 
-# Refresh the base OS packages so the resulting snapshot is not tied to an
-# older Debian security layer cached under the same upstream tag.
+# Refresh the base OS packages so the image includes current security updates
+# available at build time.
 RUN apt-get update \
     && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
