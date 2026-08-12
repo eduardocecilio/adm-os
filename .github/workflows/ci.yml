@@ -1,0 +1,79 @@
+name: Read-only CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scan the complete Git history for secrets
+        run: >-
+          docker run --rm
+          -v "$PWD:/repo"
+          ghcr.io/gitleaks/gitleaks:v8.30.1
+          detect --source /repo --redact --no-banner
+
+      - name: Scan source, dependencies and configuration
+        run: >-
+          docker run --rm
+          -v "$PWD:/workspace"
+          -v trivy-cache:/root/.cache/
+          aquasec/trivy:0.73.0
+          fs --scanners vuln,secret,misconfig
+          --severity CRITICAL,HIGH --ignore-unfixed --exit-code 1
+          /workspace
+
+      - name: Generate ephemeral CI-only values
+        shell: bash
+        run: |
+          echo "SECRET_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "RESET_SECRET_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "POSTGRES_PASSWORD=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+
+      - name: Build local images without publishing
+        run: docker compose build
+
+      - name: Scan built images for critical vulnerabilities
+        run: |
+          for image in adm-os-backend:local adm-os-frontend:local; do
+            docker run --rm \
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              -v trivy-cache:/root/.cache/ \
+              aquasec/trivy:0.73.0 \
+              image --severity CRITICAL --ignore-unfixed --exit-code 1 "$image"
+          done
+
+      - name: Run backend tests with an ephemeral SQLite database
+        run: >-
+          docker compose run --rm --no-deps
+          -e DATABASE_URL=sqlite:////tmp/adm-os-ci.db
+          backend python -m pytest
+
+      - name: Clean up the ephemeral runner
+        if: always()
+        run: >-
+          env SECRET_KEY=cleanup-only-secret-key-00000000000000000000
+          RESET_SECRET_KEY=cleanup-only-reset-key-00000000000000000000
+          POSTGRES_PASSWORD=cleanup-only-password
+          docker compose down --volumes --remove-orphans

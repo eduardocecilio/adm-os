@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { startUserSession } from '../../services/session.js'
 
 const email = ref('')
 const password = ref('')
@@ -11,7 +12,7 @@ const router = useRouter()
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
-  
+
   try {
     const formData = new URLSearchParams()
     formData.append('username', email.value)
@@ -30,8 +31,8 @@ const handleLogin = async () => {
     }
 
     const data = await response.json()
-    localStorage.setItem('token', data.access_token)
-    
+    startUserSession(data.access_token)
+
     // Auto-fetch default workspace
     try {
         const wsResponse = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/workspaces/`, {
@@ -53,7 +54,7 @@ const handleLogin = async () => {
     }
 
     router.push('/')
-    
+
   } catch (err) {
     error.value = err.message
   } finally {
@@ -68,7 +69,7 @@ const handleLogin = async () => {
       <div class="logo">🚀 AdmOS</div>
       <h1>Bem-vindo de volta</h1>
       <p class="subtitle">Faça login para continuar</p>
-      
+
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label>Email</label>
@@ -86,7 +87,7 @@ const handleLogin = async () => {
           {{ loading ? 'Entrando...' : 'Entrar' }}
         </button>
       </form>
-      
+
       <div class="forgot-password-link">
         <router-link to="/forgot-password">Esqueceu a senha?</router-link>
       </div>

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { startUserSession } from '../../services/session.js'
 
 const email = ref('')
 const password = ref('')
@@ -52,7 +53,7 @@ const handleRegister = async () => {
             email: email.value,
             password: password.value
         }
-        
+
         if (workspaceName.value) payload.workspace_name = workspaceName.value
         if (inviteToken.value) payload.invite_token = inviteToken.value
 
@@ -70,7 +71,7 @@ const handleRegister = async () => {
         }
 
         const data = await response.json()
-        localStorage.setItem('token', data.access_token)
+        startUserSession(data.access_token)
         router.push('/')
 
     } catch (err) {
@@ -87,13 +88,13 @@ const handleRegister = async () => {
       <div class="logo">🚀 AdmOS</div>
       <h1>Crie sua conta</h1>
       <p class="subtitle">Junte-se à plataforma gratuitamente</p>
-      
+
       <form @submit.prevent="handleRegister">
-        
+
         <div v-if="isInvited" class="invite-alert alert success">
             🎉 Você foi convidado para participar de um Workspace! Crie sua senha de acesso abaixo.
         </div>
-      
+
         <div v-if="!isInvited" class="form-group">
           <label>Nome da sua Empresa / Organização</label>
           <input v-model="workspaceName" type="text" placeholder="Deixe em branco para preencher depois" />
@@ -120,7 +121,7 @@ const handleRegister = async () => {
           {{ loading ? 'Criando conta...' : 'Registrar' }}
         </button>
       </form>
-      
+
       <p class="footer-link">
         Já tem conta? <router-link to="/login">Entrar</router-link>
       </p>

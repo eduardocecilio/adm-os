@@ -1,6 +1,7 @@
 import asyncio
 import requests
 import logging
+from html import escape
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -10,8 +11,8 @@ async def send_email(subject: str, email_to: list, body: dict):
         logger.warning("N8N_WEBHOOK_URL ou N8N_WEBHOOK_TOKEN não configurados. Email não enviado.")
         return
 
-    message = body.get("message", "")
-    link = body.get("link", "")
+    message = escape(str(body.get("message", "")))
+    link = escape(str(body.get("link", "")), quote=True)
     html = f"""<p>{message}</p><p><a href="{link}">{link}</a></p>"""
 
     payload = {

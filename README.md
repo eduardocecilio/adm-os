@@ -1,80 +1,119 @@
-# AdmOS - Inteligência Corporativa
+# AdmOS — inteligência corporativa
 
-> Plataforma de BI focada em gestão financeira, contábil e análise de ativos.
+> **Projeto arquivado.** Este repositório é uma referência histórica e uma
+> demonstração local. Não recebe manutenção ativa, não possui suporte e **não
+> deve ser exposto à internet nem usado em produção** sem uma nova revisão de
+> segurança e arquitetura.
 
----
+O AdmOS reúne uma API FastAPI, uma SPA Vue e PostgreSQL para experimentos de
+gestão financeira, contábil e análise de ativos.
 
-## Quick Start (Docker)
+## Quick Start local com Docker
+
+Pré-requisito: Docker com o comando `docker compose` disponível.
 
 ```bash
 cp .env.example .env
-# edite o .env com seus valores
-docker compose up --build
+openssl rand -hex 32
+openssl rand -hex 32
+openssl rand -hex 32
 ```
 
-Acesse: [http://localhost:8082](http://localhost:8082)
+Cole os três valores gerados, respectivamente, em `SECRET_KEY`,
+`RESET_SECRET_KEY` e `POSTGRES_PASSWORD` no `.env`. Eles devem ser diferentes.
+Os campos vazios de integração com e-mail podem continuar vazios.
 
----
+Valide e inicie a demonstração:
+
+```bash
+docker compose config --quiet
+docker compose up --build -d
+docker compose ps
+```
+
+- Frontend: <http://localhost:8082>
+- Backend local: <http://localhost:8000>
+- Documentação da API local: <http://localhost:8000/docs>
+
+O Compose constrói as imagens a partir do código, cria a rede e o volume local,
+aguarda o PostgreSQL e aplica as migrations antes de iniciar a API. Nenhuma
+imagem privada, rede Docker externa ou volume previamente criado é necessário.
+As portas publicadas ficam restritas ao loopback (`127.0.0.1`).
+
+Para acompanhar ou encerrar:
+
+```bash
+docker compose logs -f
+docker compose down
+```
+
+Para também apagar o banco local da demonstração:
+
+```bash
+docker compose down --volumes
+```
 
 ## Configuração
 
-### 1. Variáveis de Ambiente
+O arquivo `.env.example` contém apenas valores locais não secretos e campos
+secretos vazios. O Compose falha antes de iniciar caso qualquer segredo
+obrigatório continue vazio.
 
-Copie o arquivo de exemplo e preencha com seus valores:
+| Variável | Obrigatória | Uso |
+| --- | --- | --- |
+| `SECRET_KEY` | sim | Assinatura dos tokens de acesso; gere um valor exclusivo |
+| `RESET_SECRET_KEY` | sim | Assinatura dos tokens de redefinição; use outro valor exclusivo |
+| `POSTGRES_PASSWORD` | sim | Senha local do PostgreSQL; gere um terceiro valor exclusivo |
+| `POSTGRES_USER` | não | Usuário local do banco, padrão `adm_os` |
+| `POSTGRES_DB` | não | Banco local, padrão `adm_os` |
+| `APP_PORT` | não | Porta loopback do frontend, padrão `8082` |
+| `BACKEND_PORT` | não | Porta loopback da API, padrão `8000` |
+| `FRONTEND_URL` | não | Origem usada em CORS e links de e-mail |
+| `VITE_API_URL` | não | Prefixo público da API no JavaScript, padrão `/api` |
+| `N8N_WEBHOOK_URL` | não | Endpoint opcional para envio de e-mail |
+| `N8N_WEBHOOK_TOKEN` | não | Credencial opcional do webhook; nunca versione |
+| `EMAIL_FROM` | não | Remetente usado pela integração opcional |
+
+Variáveis `VITE_*` são incorporadas ao bundle entregue ao navegador. Elas
+nunca devem conter tokens, senhas ou qualquer outro segredo.
+
+## Arquitetura local
+
+```text
+navegador -> 127.0.0.1:8082 -> frontend (Nginx)
+                                  | /api
+                                  v
+                              backend -> PostgreSQL
+```
+
+- **Backend:** FastAPI, SQLAlchemy, autenticação JWT e cálculos financeiros.
+- **Frontend:** Vue 3, Vite e Nginx com proxy de `/api`.
+- **Banco:** PostgreSQL 15 em volume e rede gerenciados pelo Compose, sem porta
+  publicada no host.
+
+## Verificação
+
+O workflow de CI possui somente permissão `contents: read`, não recebe segredos
+do repositório e não publica imagens ou artefatos. Ele valida o Compose, constrói
+as duas imagens localmente e executa os testes do backend com SQLite efêmero.
+
+Localmente, depois de preencher o `.env`:
 
 ```bash
-cp .env.example .env
+docker compose build
+docker compose run --rm --no-deps \
+  -e DATABASE_URL=sqlite:////tmp/adm-os-test.db \
+  backend python -m pytest
 ```
 
-| Variável | Descrição |
-|----------|-----------|
-| `SECRET_KEY` | Chave JWT — gere com `python -c "import secrets; print(secrets.token_hex(32))"` |
-| `RESET_SECRET_KEY` | Chave JWT para reset de senha — gere da mesma forma |
-| `DATABASE_URL` | URL completa do PostgreSQL |
-| `POSTGRES_USER` | Usuário do banco |
-| `POSTGRES_PASSWORD` | Senha do banco |
-| `POSTGRES_DB` | Nome do banco |
-| `FRONTEND_URL` | URL pública do frontend (usada em links de e-mail e CORS) |
-| `N8N_WEBHOOK_URL` | Endpoint do n8n para envio de e-mails |
-| `N8N_WEBHOOK_TOKEN` | Token de autenticação do webhook n8n |
-| `EMAIL_FROM` | Remetente dos e-mails (ex: `Sistema <nao-responda@seudominio.com>`) |
-| `VITE_API_URL` | Prefixo da API no frontend (padrão: `/api`) |
+## Segurança, operação e direitos
 
-### 2. Subir os containers
+Leia [SECURITY.md](SECURITY.md) antes de executar ou estudar o projeto. O guia
+[DEPLOY.md](DEPLOY.md) documenta apenas a avaliação local e os requisitos que
+faltam para qualquer eventual implantação real.
 
-```bash
-docker compose up -d
-```
+Este snapshot não inclui uma licença de software. Tornar o código visível não
+concede automaticamente permissão para copiar, modificar ou redistribuir; veja
+[NOTICE](NOTICE).
 
----
-
-## Arquitetura
-
-```
-[Cloudflare Tunnel / Nginx] → [frontend:80] → [backend:8000] → [db:5432]
-```
-
-- **Backend** (FastAPI + Python): API REST, autenticação JWT, cálculos financeiros
-- **Frontend** (Vue.js 3 + Vite + Nginx): SPA com proxy reverso para `/api`
-- **Banco** (PostgreSQL 15): dados isolados em rede interna Docker
-- **Rede**: `frontend` exposto na `infra_net` para acesso via Cloudflare Tunnel; `backend` e `db` apenas na rede interna
-
----
-
-## Testes
-
-```bash
-docker compose exec backend python -m pytest
-```
-
----
-
-## Deploy com Portainer
-
-1. Crie uma Stack com o conteúdo do `docker-compose.yml`
-2. Configure as variáveis de ambiente na aba **Environment variables**
-3. Para atualizar: **Update the stack** → marque **Re-pull image**
-
----
-
-**Desenvolvido por Eduardo Cecílio**
+**Autor:** Eduardo Cecílio

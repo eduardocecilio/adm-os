@@ -22,10 +22,10 @@ function alternarMenu() {
 
 <template>
   <div class="module-layout">
-    
-    <button 
-      v-if="!menuAberto" 
-      @click="alternarMenu" 
+
+    <button
+      v-if="!menuAberto"
+      @click="alternarMenu"
       class="btn-abrir-menu"
       title="Abrir Menu"
     >
@@ -33,7 +33,7 @@ function alternarMenu() {
     </button>
 
     <aside class="sidebar" :class="{ fechado: !menuAberto }">
-      
+
       <button @click="alternarMenu" class="btn-fechar-menu" title="Esconder Menu">
         «
       </button>
@@ -44,8 +44,8 @@ function alternarMenu() {
       </div>
 
       <nav>
-        <button 
-          v-for="item in itensMenu" 
+        <button
+          v-for="item in itensMenu"
           :key="item.nome"
           @click="router.push(item.link)"
           class="menu-item"
@@ -54,7 +54,7 @@ function alternarMenu() {
         </button>
 
         <div class="divider"></div>
-        
+
         <button @click="router.push(voltarPara || '/')" class="menu-item voltar">
           ← Voltar ao Início
         </button>
@@ -79,7 +79,7 @@ function alternarMenu() {
   display: flex;
   flex-direction: column;
   position: relative; /* Para posicionar o botão de fechar */
-  
+
   /* Animação Suave */
   transition: all 0.3s ease-in-out;
   overflow: hidden; /* Importante para o conteúdo não "vazar" enquanto fecha */
@@ -154,10 +154,10 @@ h2 { margin: 0; font-size: 1.5rem; color: #2c3e50; }
 .btn-abrir-menu:hover { background: #2c3e50; color: white; border-color: #2c3e50; }
 
 /* --- ÁREA DE CONTEÚDO --- */
-.content-area { 
-  flex: 1; 
-  padding: 40px; 
-  overflow-y: auto; 
+.content-area {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
   transition: padding 0.3s; /* Suaviza se precisarmos ajustar padding */
 }
 
@@ -166,7 +166,7 @@ h2 { margin: 0; font-size: 1.5rem; color: #2c3e50; }
   .module-layout { flex-direction: column; }
   .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #ddd; }
   .sidebar.fechado { height: 0; padding: 0; width: 100%; }
-  
+
   /* No celular, o botão de abrir fica no topo fixo */
   .btn-abrir-menu { position: static; margin: 10px; width: auto; display: inline-block; }
 }

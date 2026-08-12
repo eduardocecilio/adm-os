@@ -17,7 +17,7 @@ const resultado = ref(null)
 
 function calcularNPS() {
   const total = form.value.promotores + form.value.neutros + form.value.detratores
-  
+
   if (total === 0) {
     alert("Preencha a quantidade de respostas.")
     return
@@ -25,7 +25,7 @@ function calcularNPS() {
 
   // Fórmula: %Promotores - %Detratores
   const npsScore = ((form.value.promotores - form.value.detratores) / total) * 100
-  
+
   // Classificação de Zona
   let classificacao = ''
   let corClassificacao = ''
@@ -54,20 +54,20 @@ function calcularNPS() {
 </script>
 
 <template>
-  <ModuleLayout 
-    titulo="Estratégia" 
-    emoji="🎯" 
+  <ModuleLayout
+    titulo="Estratégia"
+    emoji="🎯"
     :itensMenu="getMenuEstrategia(activeWorkspace?.id)"
   >
     <div class="ferramenta-wrapper">
-      
+
       <div class="header-ferramenta">
         <h2>Calculadora NPS</h2>
         <p>Net Promoter Score: A métrica definitiva de lealdade do cliente.</p>
       </div>
-      
+
       <div class="grid-container" :class="{ 'ativo': resultado }">
-        
+
         <div class="card input-area">
           <div class="campo">
             <label>Promotores (Notas 9-10)</label>
@@ -81,19 +81,19 @@ function calcularNPS() {
             <label>Detratores (Notas 0-6)</label>
             <input type="number" v-model="form.detratores" placeholder="Qtd. de pessoas">
           </div>
-          
+
           <button @click="calcularNPS" class="btn-calcular">Calcular Score</button>
         </div>
 
         <Transition name="slide">
           <div class="card resultado-area" v-if="resultado">
             <h3>Resultado NPS</h3>
-            
+
             <div class="nps-display" :style="{ color: resultado.corClassificacao }">
               <strong>{{ resultado.score }}</strong>
               <span>Pontos</span>
             </div>
-            
+
             <div class="classificacao-box" :style="{ borderColor: resultado.corClassificacao, color: resultado.corClassificacao }">
               {{ resultado.classificacao }}
             </div>

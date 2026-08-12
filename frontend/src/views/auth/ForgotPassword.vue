@@ -12,7 +12,7 @@ const handleForgotPassword = async () => {
     loading.value = true
     error.value = ''
     success.value = ''
-    
+
     try {
         const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/auth/forgot-password`, {
             method: 'POST',
@@ -21,9 +21,9 @@ const handleForgotPassword = async () => {
             },
             body: JSON.stringify({ email: email.value })
         });
-        
+
         const data = await response.json()
-        
+
         if (!response.ok) {
             throw new Error(data.detail || 'Ocorreu um erro ao processar sua solicitação.')
         }
@@ -54,7 +54,7 @@ const handleForgotPassword = async () => {
         <div class="logo-container">
           <h2>Adm OS</h2>
         </div>
-        
+
         <div class="auth-header">
           <h3>Esqueci minha senha</h3>
           <p>Informe seu e-mail para receber um link de recuperação</p>
@@ -65,11 +65,11 @@ const handleForgotPassword = async () => {
             <label for="email">E-mail</label>
             <div class="input-wrapper">
               <i class="input-icon">✉️</i>
-              <input 
-                type="email" 
-                id="email" 
-                v-model="email" 
-                required 
+              <input
+                type="email"
+                id="email"
+                v-model="email"
+                required
                 placeholder="seu@email.com"
                 autocomplete="email"
               >

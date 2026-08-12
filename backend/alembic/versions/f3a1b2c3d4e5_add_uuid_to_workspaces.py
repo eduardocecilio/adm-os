@@ -20,7 +20,7 @@ depends_on = None
 def upgrade() -> None:
     # 1. Add column as nullable first
     op.add_column('workspaces', sa.Column('uuid', sa.String(), nullable=True))
-    
+
     # 2. Populate existing rows with UUIDs
     # Get a connection to execute raw SQL
     conn = op.get_bind()
@@ -30,7 +30,7 @@ def upgrade() -> None:
             sa.text("UPDATE workspaces SET uuid = :uuid WHERE id = :id"),
             {"uuid": str(uuid.uuid4()), "id": ws[0]}
         )
-    
+
     # 3. Make non-nullable and add unique index
     op.alter_column('workspaces', 'uuid', nullable=False)
     op.create_index(op.f('ix_workspaces_uuid'), 'workspaces', ['uuid'], unique=True)

@@ -10,6 +10,7 @@ const user = ref({
 
 const password = ref('')
 const confirmPassword = ref('')
+const currentPassword = ref('')
 const message = ref('')
 const error = ref('')
 const loading = ref(false)
@@ -24,6 +25,16 @@ const fetchProfile = async () => {
 }
 
 const updateProfile = async () => {
+  if (!currentPassword.value) {
+    error.value = "Informe sua senha atual para confirmar a alteração."
+    return
+  }
+
+  if (password.value && password.value.length < 8) {
+    error.value = "A nova senha deve ter pelo menos 8 caracteres."
+    return
+  }
+
   if (password.value && password.value !== confirmPassword.value) {
     error.value = "As senhas não coincidem."
     return
@@ -35,9 +46,10 @@ const updateProfile = async () => {
 
   try {
     const payload = {
-      email: user.value.email
+      email: user.value.email,
+      current_password: currentPassword.value
     }
-    
+
     if (password.value) {
       payload.password = password.value
     }
@@ -50,6 +62,7 @@ const updateProfile = async () => {
     message.value = "Perfil atualizado com sucesso!"
     password.value = ''
     confirmPassword.value = ''
+    currentPassword.value = ''
   } catch (err) {
     error.value = err.message || "Erro ao atualizar perfil."
   } finally {
@@ -64,11 +77,11 @@ onMounted(fetchProfile)
 <template>
   <div class="page-container">
     <Header />
-    
+
     <div class="content">
       <div class="profile-card">
         <h1>👤 Meu Perfil</h1>
-        
+
         <form @submit.prevent="updateProfile">
           <!-- Dados Básicos -->
           <div class="form-group">
@@ -77,18 +90,29 @@ onMounted(fetchProfile)
           </div>
 
           <div class="divider"></div>
-          
+
+          <div class="form-group">
+            <label>Senha atual</label>
+            <input
+              v-model="currentPassword"
+              type="password"
+              autocomplete="current-password"
+              required
+              placeholder="Confirme sua senha atual"
+            />
+          </div>
+
           <!-- Alterar Senha -->
           <h3>Alterar Senha (Opcional)</h3>
 
           <div class="form-group">
             <label>Nova Senha</label>
-            <input v-model="password" type="password" placeholder="Nova senha" />
+            <input v-model="password" type="password" minlength="8" autocomplete="new-password" placeholder="Nova senha" />
           </div>
 
           <div class="form-group">
             <label>Confirmar Nova Senha</label>
-            <input v-model="confirmPassword" type="password" placeholder="Confirme a nova senha" />
+            <input v-model="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Confirme a nova senha" />
           </div>
 
           <!-- Mensagens e Botão (unificados) -->

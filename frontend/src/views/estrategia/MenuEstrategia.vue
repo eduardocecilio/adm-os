@@ -7,15 +7,15 @@ const { activeWorkspace } = useWorkspace()
 </script>
 
 <template>
-  <ModuleLayout 
-    titulo="Estratégia" 
-    emoji="🎯" 
+  <ModuleLayout
+    titulo="Estratégia"
+    emoji="🎯"
     :itensMenu="getMenuEstrategia(activeWorkspace?.id)"
   >
     <div class="welcome-screen">
       <h2>Inteligência de Mercado</h2>
       <p>Monitore a saúde da marca e o posicionamento estratégico.</p>
-      
+
       <div class="stats-resumo">
         <div class="stat-box">
           <span>CAC (Custo Aquisição)</span>

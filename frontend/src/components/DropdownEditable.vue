@@ -22,7 +22,7 @@ const inputRef = ref(null)
 
 // Monitora alterações
 watch(() => props.modelValue, (newVal) => {
-  if (isEditing.value) return 
+  if (isEditing.value) return
 
   if (newVal && newVal.trim() !== '' && !props.opcoes.includes(newVal)) {
     isCustom.value = true
@@ -38,7 +38,7 @@ const onSelectChange = async (event) => {
   if (valor === 'Personalizado') {
     isCustom.value = true
     isEditing.value = true
-    emit('update:modelValue', '') 
+    emit('update:modelValue', '')
     await nextTick()
     inputRef.value?.focus()
   } else {
@@ -67,9 +67,9 @@ const editarTexto = async () => {
 
 <template>
   <div class="dropdown-editable">
-    
+
     <div v-if="isCustom && isEditing" class="custom-wrapper">
-      <input 
+      <input
         ref="inputRef"
         :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"
@@ -81,8 +81,8 @@ const editarTexto = async () => {
       <span class="icon-edit">✎</span>
     </div>
 
-    <div 
-      v-else-if="isCustom && !isEditing" 
+    <div
+      v-else-if="isCustom && !isEditing"
       class="custom-wrapper clickable"
       @click="editarTexto"
       title="Clique para editar"
@@ -91,10 +91,10 @@ const editarTexto = async () => {
       <span class="icon-edit">✎</span>
     </div>
 
-    <select 
-      v-else 
-      :value="modelValue" 
-      @change="onSelectChange" 
+    <select
+      v-else
+      :value="modelValue"
+      @change="onSelectChange"
       class="select-padrao"
     >
       <option value="" disabled selected>{{ placeholder }}</option>

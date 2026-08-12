@@ -37,11 +37,11 @@ const carregarDadosMercado = async (periodo) => {
     dados.value.dolar = { ...json.dolar, loading: false }
     dados.value.euro = { ...json.euro, loading: false }
     dados.value.btc = { brl: json.btc.brl, usd: json.btc.usd, loading: false }
-    
+
     // Pequeno ajuste para garantir que Selic e IPCA venham formatados se forem números
     dados.value.selic = { ...json.selic, valor: typeof json.selic.valor === 'number' ? formatPercent(json.selic.valor) : json.selic.valor, loading: false }
     dados.value.ipca = { ...json.ipca, valor: typeof json.ipca.valor === 'number' ? formatPercent(json.ipca.valor) : json.ipca.valor, loading: false }
-    
+
     if (modalAberto.value) {
       if (tituloModal.value.includes('Dólar')) dadosModal.value = dados.value.dolar
       if (tituloModal.value.includes('Euro')) dadosModal.value = dados.value.euro
@@ -98,10 +98,10 @@ const btcDisplay = computed(() => moedaBaseCripto.value === 'BRL' ? dados.value.
 
 <template>
   <ModuleLayout titulo="Investimentos" emoji="📈" :itensMenu="getMenuInvestimentos(activeWorkspace?.id)">
-    
-    <ModalGrafico 
-      :show="modalAberto" 
-      :titulo="tituloModal" 
+
+    <ModalGrafico
+      :show="modalAberto"
+      :titulo="tituloModal"
       :dados="dadosModal"
       :periodoAtual="periodoGrafico"
       :exibirPeriodos="true"

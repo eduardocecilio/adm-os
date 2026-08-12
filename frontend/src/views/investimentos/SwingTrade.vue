@@ -21,7 +21,7 @@ const resultado = ref(null)
 async function calcularNoBackend() {
   try {
     const dados = await investimentosService.calcularSwingTrade(form.value)
-    resultado.value = dados 
+    resultado.value = dados
   } catch (erro) {
     console.error(erro)
     alert("Erro ao conectar com o servidor: " + erro.message)
@@ -30,18 +30,18 @@ async function calcularNoBackend() {
 </script>
 
 <template>
-  <ModuleLayout 
-    titulo="Investimentos" 
-    emoji="📈" 
+  <ModuleLayout
+    titulo="Investimentos"
+    emoji="📈"
     :itensMenu="getMenuInvestimentos(activeWorkspace?.id)"
   >
-    
+
     <div class="ferramenta-wrapper">
       <div class="header-ferramenta">
         <h2>Simulador de Swing Trade</h2>
         <p>Calcule o lucro líquido descontando IR (15%) e Taxas da B3.</p>
       </div>
-      
+
       <div class="grid-container" :class="{ 'ativo': resultado }">
          <div class="card input-area">
           <div class="campo">
@@ -56,19 +56,19 @@ async function calcularNoBackend() {
             <label>Quantidade</label>
             <input type="number" v-model="form.quantidade">
           </div>
-          
+
           <button @click="calcularNoBackend" class="btn-calcular">Calcular Resultado</button>
         </div>
 
         <Transition name="slide">
           <div class="card resultado-area" v-if="resultado">
             <h3>Resumo da Operação</h3>
-            
+
             <div class="resumo-item lucro">
               <span>Lucro Líquido</span>
               <strong>R$ {{ formatMoney(resultado.resumo.lucro_liquido) }}</strong>
             </div>
-            
+
             <div class="detalhes">
               <div class="linha">
                 <span>Imposto de Renda</span>
@@ -96,9 +96,9 @@ async function calcularNoBackend() {
 .ferramenta-wrapper { padding: 0 20px; }
 
 /* Cabeçalho - Agora fixo e sempre centralizado */
-.header-ferramenta { 
-  text-align: center; 
-  margin-bottom: 40px; 
+.header-ferramenta {
+  text-align: center;
+  margin-bottom: 40px;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -109,9 +109,9 @@ async function calcularNoBackend() {
 /* --- GRID SYSTEM --- */
 .grid-container {
   display: grid;
-  grid-template-columns: 1fr; 
-  gap: 0; 
-  max-width: 450px; 
+  grid-template-columns: 1fr;
+  gap: 0;
+  max-width: 450px;
   margin: 0 auto;
   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -119,15 +119,15 @@ async function calcularNoBackend() {
 /* Estado ATIVO (Com Resultado): Expande para 2 Colunas */
 .grid-container.ativo {
   grid-template-columns: 1fr 1fr;
-  gap: 40px; 
+  gap: 40px;
   max-width: 1000px;
 }
 
 /* Cards */
-.card { 
-  background: white; 
-  padding: 30px; 
-  border-radius: 12px; 
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
   border: 1px solid #e0e0e0;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   height: fit-content;

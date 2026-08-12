@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue'
+import api from '../services/api.js'
 
 const props = defineProps({
-  dados: { type: Object, required: true }, // O objeto do Balanço ou DRE
   dados: { type: Object, required: true },
   tipo: { type: String, default: 'geral' } // 'geral', 'balanco', 'dre', 'indicadores'
 })
@@ -14,36 +14,12 @@ const downloadExcel = async () => {
   baixando.value = true
 
   try {
-    // Usando api.js com opção de retornar o blob diretamente
-    // Note: api.js might need adjustment to handle non-JSON responses if it defaults to response.json()
-    // Let's check api.js again.
-    // api.js uses response.json() by default. We need to pass a flag or handle it.
-    // Let's look at api.js again to be sure.
-    // It returns response.json().
-    // I should probably modify api.js to handle blobs or just use fetch here with the correct URL from api.js export?
-    // standard api.js usually returns json.
-    // Let's update api.js to support blob or just use the relative URL logic here.
-    // Actually, let's keep it simple and use the relative URL logic here for now, OR update api.js.
-    // Updating api.js is cleaner.
-    
-    // For now, I will assume I can update api.js or just use the same URL logic.
-    // The previous grep showed api.js: const API_URL = ...
-    // I can export API_URL from api.js or just replicate the simple logic:
-    
-    const baseURL = import.meta.env.VITE_API_URL || '/api';
-    
-    const response = await fetch(`${baseURL}/exportar/excel`, {
+    const blob = await api('/exportar/excel', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-token': import.meta.env.VITE_API_TOKEN
-      },
-      body: JSON.stringify({ tipo: props.tipo, data: props.dados })
-    });
+      body: { tipo: props.tipo, data: props.dados },
+      responseType: 'blob'
+    })
 
-    if (!response.ok) throw new Error("Falha ao gerar Excel")
-    
-    const blob = await response.blob()
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -51,6 +27,7 @@ const downloadExcel = async () => {
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
 
   } catch (error) {
     console.error("Erro no download:", error)
@@ -71,7 +48,7 @@ const downloadExcel = async () => {
 <style scoped>
 /* Estilos mantidos - estão ótimos! */
 .btn-excel {
-  background-color: #217346; 
+  background-color: #217346;
   color: white;
   border: none;
   padding: 10px 20px;

@@ -4,7 +4,12 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
-from auth_utils import SECRET_KEY, ALGORITHM
+from auth_utils import (
+    ACCESS_TOKEN_TYPE,
+    ALGORITHM,
+    SECRET_KEY,
+    TOKEN_TYPE_CLAIM,
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
@@ -16,12 +21,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        email = payload.get("sub")
+        if (
+            payload.get(TOKEN_TYPE_CLAIM) != ACCESS_TOKEN_TYPE
+            or not isinstance(email, str)
+            or not email
+        ):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    
+
     user = db.query(User).filter(User.email == email).first()
     if user is None:
         raise credentials_exception
@@ -35,8 +44,8 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 from models.workspace import Workspace, WorkspaceUser, WorkspaceRole
 
 async def get_workspace_access(
-    workspace_id: str, 
-    current_user: User = Depends(get_current_active_user), 
+    workspace_id: str,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """Dependency that ensures the authenticated user is a member of the requested workspace."""
@@ -47,18 +56,18 @@ async def get_workspace_access(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Workspace não encontrado"
         )
-    
+
     link = db.query(WorkspaceUser).filter(
         WorkspaceUser.workspace_id == workspace.id,
         WorkspaceUser.user_id == current_user.id
     ).first()
-    
+
     if not link:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Você não tem acesso a este workspace"
         )
-        
+
     return {
         "workspace": link.workspace,
         "role": link.role

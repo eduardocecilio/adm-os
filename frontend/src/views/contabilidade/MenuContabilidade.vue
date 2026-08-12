@@ -13,20 +13,20 @@ const navegarPara = (rota) => {
 </script>
 
 <template>
-  <ModuleLayout 
-    titulo="Contabilidade" 
-    emoji="📊" 
+  <ModuleLayout
+    titulo="Contabilidade"
+    emoji="📊"
     :itensMenu="getMenuContabilidade(activeWorkspace?.id)"
   >
     <div class="dashboard-home">
-      
+
       <div class="hero-section">
         <h2>Controladoria & Performance</h2>
         <p>Siga o fluxo abaixo para gerar os relatórios de inteligência financeira.</p>
       </div>
 
       <div class="steps-container">
-        
+
         <div class="step-card" @click="navegarPara(`/${activeWorkspace?.id}/contabilidade/balanco`)">
           <div class="step-icon">1️⃣</div>
           <h3>Balanço Patrimonial</h3>
@@ -63,7 +63,7 @@ const navegarPara = (rota) => {
       <div class="info-guide">
         <h3>⚠️ Guia de Preenchimento para Fórmulas</h3>
         <p>Para que os cálculos funcionem corretamente, certifique-se de preencher ou selecionar os campos marcados com <strong>(*)</strong> nos formulários:</p>
-        
+
         <div class="guide-grid">
           <div class="guide-item">
             <h4>Para Liquidez</h4>
@@ -108,8 +108,8 @@ const navegarPara = (rota) => {
 /* STEPS */
 .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 50px; }
 
-.step-card { 
-  background: white; padding: 25px; border-radius: 12px; border: 1px solid #e0e0e0; 
+.step-card {
+  background: white; padding: 25px; border-radius: 12px; border: 1px solid #e0e0e0;
   cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;
   display: flex; flex-direction: column;
 }

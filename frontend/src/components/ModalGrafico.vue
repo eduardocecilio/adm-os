@@ -26,18 +26,18 @@ const chartColor = computed(() => (props.dados.variacao || 0) >= 0 ? '#27ae60' :
 // Desenho do SVG
 const width = 600
 const height = 250
-const padding = 40 
+const padding = 40
 
 const getPath = () => {
   const points = props.dados.history || []
   if (points.length < 2) return ""
-  
+
   const range = stats.value.max - stats.value.min || 1
   if (range === 0) return `M ${padding} ${height/2} L ${width} ${height/2}` // Linha reta
 
   const stepX = (width - padding) / (points.length - 1)
   let d = `M ${padding} ${height - ((points[0] - stats.value.min) / range) * height}`
-  
+
   points.forEach((val, i) => {
     if (i === 0) return
     const x = padding + (i * stepX)
@@ -51,7 +51,7 @@ const getPath = () => {
 <template>
   <div v-if="show" class="modal-overlay" @click.self="emit('close')">
     <div class="modal-content">
-      
+
       <div class="top-bar">
         <button class="close-btn" @click="emit('close')">×</button>
       </div>
@@ -59,7 +59,7 @@ const getPath = () => {
       <div class="modal-header">
         <div class="header-main">
           <h2>{{ titulo }}</h2>
-          
+
           <div class="modal-controls" v-if="exibirPeriodos">
             <button :class="{ active: periodoAtual === '1D' }" @click="emit('trocarPeriodo', '1D')">1D</button>
             <button :class="{ active: periodoAtual === '1M' }" @click="emit('trocarPeriodo', '1M')">1M</button>
@@ -90,7 +90,7 @@ const getPath = () => {
           <path :d="getPath() + ` L ${width} ${height} L ${padding} ${height} Z`" :fill="chartColor" opacity="0.1" stroke="none" />
         </svg>
       </div>
-      
+
       <div class="modal-footer">
         <p v-if="exibirPeriodos">Variação no período selecionado.</p>
         <p v-else>Histórico baseado nos fechamentos salvos.</p>

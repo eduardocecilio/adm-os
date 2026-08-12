@@ -35,7 +35,7 @@ const handleInvite = async () => {
   loadingInvite.value = true
   inviteError.value = ''
   inviteSuccess.value = ''
-  
+
   try {
     const response = await api(`/workspaces/${activeWorkspace.value.id}/invite`, {
       method: 'POST',
@@ -92,32 +92,32 @@ const isAdmin = () => ['OWNER', 'ADMIN'].includes(getWorkspaceRole())
       <div v-if="!activeWorkspace" class="no-workspace">
         <p>Carregando organização...</p>
       </div>
-      
+
       <div v-else>
         <!-- Invite Panel -->
         <section class="settings-card">
           <h3>Convidar novo membro</h3>
           <p class="helper-text">Eles precisarão criar uma conta usando o e-mail convidado.</p>
-          
+
           <form v-if="isAdmin()" @submit.prevent="handleInvite" class="invite-form">
             <div class="input-group">
               <input v-model="inviteEmail" type="email" placeholder="E-mail do colaborador" required />
-              
+
               <select v-model="inviteRole">
                 <option value="MEMBER">Membro</option>
                 <option value="ADMIN">Administrador</option>
                 <option value="GUEST">Convidado (Leitura)</option>
               </select>
-              
+
               <button type="submit" class="btn-primary" :disabled="loadingInvite">
                 {{ loadingInvite ? 'Enviando...' : 'Convidar' }}
               </button>
             </div>
-            
+
             <div v-if="inviteError" class="alert static error">⚠️ {{ inviteError }}</div>
             <div v-if="inviteSuccess" class="alert static success">✅ {{ inviteSuccess }}</div>
           </form>
-          
+
           <div v-else class="locked-state">
             <p>🔒 Apenas Administradores ou o Dono deste Workspace podem gerenciar membros.</p>
           </div>
@@ -127,10 +127,10 @@ const isAdmin = () => ['OWNER', 'ADMIN'].includes(getWorkspaceRole())
         <section class="settings-card">
           <h3>Membros Atuais</h3>
           <p class="helper-text">Pessoas que já possuem acesso a este Workspace.</p>
-          
+
           <div v-if="loadingMembers">Carregando membros...</div>
           <div v-else-if="membersError" class="alert static error">{{ membersError }}</div>
-          
+
           <div v-else class="table-container">
             <table class="members-table">
                 <thead>
@@ -147,9 +147,9 @@ const isAdmin = () => ['OWNER', 'ADMIN'].includes(getWorkspaceRole())
                         <td><span class="badge" :class="member.role">{{ member.role }}</span></td>
                         <td>{{ formatDate(member.joined_at) }}</td>
                         <td v-if="isAdmin()">
-                            <button 
+                            <button
                                 v-if="isAdmin() && member.role !== 'OWNER'"
-                                @click="handleRemoveMember(member.user_id)" 
+                                @click="handleRemoveMember(member.user_id)"
                                 class="btn-danger-text"
                             >
                                 Remover

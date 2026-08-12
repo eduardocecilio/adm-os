@@ -14,7 +14,7 @@ onMounted(async () => {
         if (workspaces && workspaces.length > 0) {
             // Save allowed workspaces to LocalStorage for the Router Guard to read synchronously
             localStorage.setItem('userWorkspaces', JSON.stringify(workspaces))
-            
+
             // Find if there's a stored workspace ID that the user still has access to
             const storedWs = localStorage.getItem('activeWorkspace')
             let targetWorkspace = workspaces[0]
@@ -30,10 +30,10 @@ onMounted(async () => {
                     console.error("Error parsing stored workspace", e)
                 }
             }
-            
+
             // Set the active workspace globally so components (Home.vue, Header.vue) can use it
             setActiveWorkspace(targetWorkspace)
-            
+
             // Redirect to the dashboard of the selected workspace
             router.replace(`/${targetWorkspace.id}/dashboard`)
         } else {

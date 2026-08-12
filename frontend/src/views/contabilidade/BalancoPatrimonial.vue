@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import ModuleLayout from '../../components/ModuleLayout.vue'
-import DropdownEditable from '../../components/DropdownEditable.vue' 
+import DropdownEditable from '../../components/DropdownEditable.vue'
 import { getMenuContabilidade } from '../../constants/menus/menuContabilidade.js'
 import { opcoesBalanco } from '../../constants/options/contabilidade.js'
 import BtnExcel from '../../components/BtnExcel.vue'
@@ -100,16 +100,16 @@ const checarESalvar = () => {
 
 <template>
   <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="getMenuContabilidade(activeWorkspace?.id)">
-    
+
     <div class="header-pagina">
       <h2>Editor de Balanço Patrimonial</h2>
       <p>Estruture as contas. O Ativo deve ser igual ao Passivo + PL.</p>
     </div>
 
     <div class="balanco-grid">
-      
+
       <div class="coluna">
-        
+
         <div class="grupo-contas">
           <div class="grupo-header">
             <h3>⚡ Ativo Circulante</h3>
@@ -147,7 +147,7 @@ const checarESalvar = () => {
       </div>
 
       <div class="coluna">
-        
+
         <div class="grupo-contas">
           <div class="grupo-header">
             <h3>⏳ Passivo Circulante</h3>
@@ -205,11 +205,11 @@ const checarESalvar = () => {
         💾 Salvar Balanço
       </button>
 
-      <BtnExcel 
-        :dados="balanco" 
-        tipo="balanco" 
+      <BtnExcel
+        :dados="balanco"
+        tipo="balanco"
         nomeArquivo="Balanco_Patrimonial.xlsx"
-        style="margin-left: 15px;" 
+        style="margin-left: 15px;"
     />
     </div>
 

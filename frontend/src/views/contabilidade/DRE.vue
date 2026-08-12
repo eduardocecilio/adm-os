@@ -16,27 +16,27 @@ const dre = ref({
   receita_bruta: [
     { id: 1, conta: opcoesDRE.receita[0], valor: 0 }
   ],
-  
+
   // Impostos sobre a Receita Bruta -> Index 0
   deducoes: [
     { id: 2, conta: opcoesDRE.deducoes[0], valor: 0 }
   ],
-  
+
   // Serviços de Terceiros - CTO (*) -> Index 1
   custos_producao: [
     { id: 3, conta: opcoesDRE.custos_producao[1], valor: 0 }
   ],
-  
+
   // CPV / CMV (*) -> Index 1
   custos_venda: [
     { id: 4, conta: opcoesDRE.custos_venda[1], valor: 0 }
   ],
-  
+
   // Serviços de Terceiros - CML (*) -> Index 1
   desp_comerciais: [
     { id: 5, conta: opcoesDRE.desp_comerciais[1], valor: 0 }
   ],
-  
+
   // Serviços de Terceiros - ADM (*) -> Index 1
   desp_administrativas: [
     { id: 6, conta: opcoesDRE.desp_administrativas[1], valor: 0 }
@@ -44,14 +44,14 @@ const dre = ref({
 
   // Outras Despesas Operacionais -> Index 1
   outras_ops: [
-    { id: 7, conta: opcoesDRE.outras_ops[1], valor: 0 } 
+    { id: 7, conta: opcoesDRE.outras_ops[1], valor: 0 }
   ],
 
   // Despesas Financeiras -> Index 1
   financeiro: [
     { id: 8, conta: opcoesDRE.financeiro[1], valor: 0 }
   ],
-  
+
   // Provisão para IR/CS -> Index 1
   impostos: [
     { id: 9, conta: opcoesDRE.impostos[1], valor: 0 }
@@ -89,9 +89,9 @@ const lucroBruto = computed(() => receitaLiquida.value - Math.abs(totalCustosPro
 // 3. Lucro Operacional
 const totalComerciais = computed(() => somar(dre.value.desp_comerciais))
 const totalAdministrativas = computed(() => somar(dre.value.desp_administrativas))
-const totalOutrasOps = computed(() => somar(dre.value.outras_ops)) 
+const totalOutrasOps = computed(() => somar(dre.value.outras_ops))
 
-const lucroOperacional = computed(() => 
+const lucroOperacional = computed(() =>
   lucroBruto.value - Math.abs(totalComerciais.value) - Math.abs(totalAdministrativas.value) + totalOutrasOps.value
 )
 
@@ -137,14 +137,14 @@ const limparHistorico = () => {
 
 <template>
   <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="getMenuContabilidade(activeWorkspace?.id)">
-    
+
     <div class="header-pagina">
       <h2>DRE Gerencial</h2>
       <p>Estruture a Demonstração do Resultado conforme os grupos abaixo.</p>
     </div>
 
     <div class="dre-container">
-      
+
       <div class="section-block receita">
         <div class="section-header">
           <h3>(+) Receita Bruta de Produtos</h3>
@@ -181,7 +181,7 @@ const limparHistorico = () => {
           <h3>(-) Custos de Produtos, Mercadorias e Serviços</h3>
           <span>R$ {{ (totalCustosProd + totalCustosVenda).toFixed(2) }}</span>
         </div>
-        
+
         <h4 class="sub-title">Formação dos Custos (CTO)</h4>
         <div v-for="(item, idx) in dre.custos_producao" :key="item.id" class="line-row">
           <DropdownEditable v-model="item.conta" :opcoes="opcoesDRE.custos_producao" />
@@ -282,11 +282,11 @@ const limparHistorico = () => {
 
       <div class="actions">
         <button class="btn-save" @click="salvarDRE">💾 Salvar DRE</button>
-        <BtnExcel 
-          :dados="dre" 
-          tipo="dre" 
+        <BtnExcel
+          :dados="dre"
+          tipo="dre"
           nomeArquivo="DRE_Gerencial.xlsx"
-          style="margin-left: 15px;" 
+          style="margin-left: 15px;"
         />
       </div>
 
@@ -295,7 +295,7 @@ const limparHistorico = () => {
           <h3>Histórico de Versões</h3>
           <button v-if="historico.length > 0" class="btn-limpar-hist" @click="limparHistorico">Limpar Histórico</button>
         </div>
-        
+
         <div v-if="historico.length > 0" class="lista-historico">
           <div v-for="(item, idx) in historico" :key="idx" class="item-hist">
             <div class="info">

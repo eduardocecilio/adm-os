@@ -4,25 +4,25 @@ export const opcoesBalanco = {
     'Disponível (*)',             // mesmo que Caixa e Equivalentes, usado na Liquidez Imediata
     'Contas a Receber (*)',       // Usado no Prazo Médio de Recebimento (PMR)
     'Estoques (*)',               // Usado no Prazo Médio de Estocagem (PME)
-    'Tributos a Recuperar', 
-    'Outros Ativos', 
+    'Tributos a Recuperar',
+    'Outros Ativos',
     'Despesas Antecipadas (*)'    // Usado na Liquidez Seca
   ],
   anc: [
     'Ativo Realizável a Longo Prazo (*)', // Usado na Liquidez Geral
-    'Tributos a Recuperar (Longo Prazo)', 
-    'Depósitos Judiciais', 
+    'Tributos a Recuperar (Longo Prazo)',
+    'Depósitos Judiciais',
     'Outros Ativos (Longo Prazo)',
-    'Investimentos', 
-    'Imobilizado', 
+    'Investimentos',
+    'Imobilizado',
     'Intangível',
     'Depreciação Acumulada'
   ],
   pc: [
     'Fornecedores (*)',                   // Usado no Prazo Médio de Pagamento (PMP)
     'Empréstimos e Financiamentos (*)',   // Usado no ROI (Investimento)
-    'Obrigações Trabalhistas', 
-    'Impostos, Taxas e Contribuições', 
+    'Obrigações Trabalhistas',
+    'Impostos, Taxas e Contribuições',
     'Adiantamento de Clientes',
     'Lucros e Dividendos a Pagar',
     'Outras Obrigações'
@@ -33,14 +33,14 @@ export const opcoesBalanco = {
     'Benefícios a Empregados',
     'Contingências',
     'Outros Passivos',
-    'Provisões', 
+    'Provisões',
     'Partes Relacionadas'
   ],
   pl: [
-    'Capital Social', 
-    'Reservas de Lucro', 
-    'Reservas de Capital', 
-    'Ajustes de Avaliação Patrimonial', 
+    'Capital Social',
+    'Reservas de Lucro',
+    'Reservas de Capital',
+    'Ajustes de Avaliação Patrimonial',
     'Lucros/Prejuízos Acumulados'
   ]
 }

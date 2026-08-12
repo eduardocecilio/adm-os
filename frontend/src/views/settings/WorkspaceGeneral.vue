@@ -15,7 +15,7 @@ const handleRenameWorkspace = async () => {
     loadingRename.value = true
     renameError.value = ''
     renameSuccess.value = ''
-    
+
     try {
         const data = await api(`/workspaces/${activeWorkspace.value.id}`, {
             method: 'PUT',
@@ -50,12 +50,12 @@ const isAdmin = () => ['OWNER', 'ADMIN'].includes(getWorkspaceRole())
       <div v-if="!activeWorkspace" class="no-workspace">
         <p>Carregando organização...</p>
       </div>
-      
+
       <div v-else>
         <section class="settings-card" v-if="isAdmin()">
           <h3>Geral</h3>
           <p class="helper-text">Altere as informações fundamentais da sua organização.</p>
-          
+
           <form @submit.prevent="handleRenameWorkspace" class="inline-form">
               <div class="input-group">
                 <input v-model="newWorkspaceName" type="text" placeholder="Nome do Workspace" required />
@@ -67,7 +67,7 @@ const isAdmin = () => ['OWNER', 'ADMIN'].includes(getWorkspaceRole())
               <div v-if="renameSuccess" class="alert static success">✅ {{ renameSuccess }}</div>
           </form>
         </section>
-        
+
         <div v-else class="locked-state">
             <p>🔒 Apenas Administradores ou o Dono deste Workspace podem gerenciar configurações gerais.</p>
         </div>

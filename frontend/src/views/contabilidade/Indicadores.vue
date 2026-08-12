@@ -12,9 +12,9 @@ const { activeWorkspace } = useWorkspace()
 const historicoBalanco = ref([])
 const historicoDRE = ref([])
 
-const selecionadoBalanco = ref('') 
-const selecionadoBalancoAnt = ref('') 
-const selecionadoDRE = ref('')     
+const selecionadoBalanco = ref('')
+const selecionadoBalancoAnt = ref('')
+const selecionadoDRE = ref('')
 
 const resLiquidez = ref(null)
 const resRentabilidade = ref(null)
@@ -65,7 +65,7 @@ const calcularIndices = async () => {
   const balancoObj = historicoBalanco.value[selecionadoBalanco.value].dados
   const dreObj = historicoDRE.value[selecionadoDRE.value].dados
   let balancoAntObj = null
-  
+
   // 1. CONSTRUÇÃO DOS GRÁFICOS DE EVOLUÇÃO
   // A lógica agora respeita estritamente: [Valor Anterior, Valor Atual]
   const histAtivo = []
@@ -75,11 +75,11 @@ const calcularIndices = async () => {
   // Se tiver Balanço Anterior selecionado, ele entra PRIMEIRO (Esquerda do gráfico)
   if (selecionadoBalancoAnt.value !== '') {
     balancoAntObj = historicoBalanco.value[selecionadoBalancoAnt.value].dados
-    
+
     const antAtivo = somarGrupo(balancoAntObj.ativo_circulante) + somarGrupo(balancoAntObj.ativo_nao_circulante)
     const antPassivo = somarGrupo(balancoAntObj.passivo_circulante) + somarGrupo(balancoAntObj.passivo_nao_circulante)
     const antPL = somarGrupo(balancoAntObj.patrimonio_liquido)
-    
+
     histAtivo.push(antAtivo)
     histPassivo.push(antPassivo)
     histPL.push(antPL)
@@ -124,7 +124,7 @@ const calcularIndices = async () => {
     resRentabilidade.value = rR
     resEndividamento.value = rE
     resAtividade.value = rA
-    
+
     dashboardGerado.value = true
 
   } catch (e) {
@@ -143,7 +143,7 @@ const abrirGraficoEvolucao = (titulo, objDados) => {
   dadosModal.value = {
     titulo: titulo,
     valor: formatMoney(objDados.valor),
-    variacao: 0, 
+    variacao: 0,
     history: history
   }
   modalAberto.value = true
@@ -157,12 +157,12 @@ const getMiniSvgPath = (dataPoints) => {
   const min = Math.min(...dataPoints)
   const max = Math.max(...dataPoints)
   const range = max - min || 1
-  
+
   if (range === 0) return `M 0 ${height/2} L ${width} ${height/2}`
 
   const stepX = width / (dataPoints.length - 1)
   let path = `M 0 ${height - ((dataPoints[0] - min) / range) * height}`
-  
+
   dataPoints.forEach((val, i) => {
     if (i === 0) return
     const x = i * stepX
@@ -192,13 +192,13 @@ const dadosParaExportar = computed(() => {
 
 <template>
   <ModuleLayout titulo="Contabilidade" emoji="💰" :itensMenu="getMenuContabilidade(activeWorkspace?.id)">
-    
-    <ModalGrafico 
-      :show="modalAberto" 
-      :titulo="dadosModal.titulo" 
+
+    <ModalGrafico
+      :show="modalAberto"
+      :titulo="dadosModal.titulo"
       :dados="dadosModal"
-      :exibirPeriodos="false" 
-      @close="modalAberto = false" 
+      :exibirPeriodos="false"
+      @close="modalAberto = false"
     />
 
     <div class="header-pagina">
@@ -230,7 +230,7 @@ const dadosParaExportar = computed(() => {
           </div>
         </div>
       </div>
-      
+
       <div class="panel-section secondary-inputs" style="border-left:1px solid #eee; padding-left:20px;">
         <div class="section-title">⚖️ Comparativo (Opcional)</div>
         <div class="input-group">
@@ -255,7 +255,7 @@ const dadosParaExportar = computed(() => {
     <div v-if="dashboardGerado" class="section-evolution">
       <h3 class="section-header">🏛️ Evolução Patrimonial</h3>
       <div class="evolution-grid">
-        
+
         <div class="evo-card blue clickable" @click="abrirGraficoEvolucao('Evolução do Ativo Total', evolucao.ativo)">
           <div class="evo-content-clean">
             <span class="evo-label">Ativo Total</span>
@@ -293,7 +293,7 @@ const dadosParaExportar = computed(() => {
     </div>
 
     <div v-if="dashboardGerado" class="dashboard-grid mt-big">
-      
+
       <div class="kpi-card liquidity">
         <div class="card-header"><h3>💧 Liquidez</h3><span class="badge">Solvência</span></div>
         <div class="kpi-content">

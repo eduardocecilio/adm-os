@@ -2,8 +2,6 @@ from fastapi import APIRouter
 import yfinance as yf
 import pandas as pd
 import requests
-import warnings
-import urllib3
 import logging
 
 logger = logging.getLogger(__name__)
@@ -50,10 +48,8 @@ def get_indicador_simples(tipo):
 
         elif tipo == "ipca":
             url = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.13522/dados/ultimos/1?formato=json"
-            # A API do BCB apresenta problemas de certificado SSL; suprimimos apenas este aviso específico
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", urllib3.exceptions.InsecureRequestWarning)
-                resp = requests.get(url, timeout=5, verify=False)
+            # Mantém a validação TLS ativa; falhas de certificado caem no fallback abaixo.
+            resp = requests.get(url, timeout=5)
             if resp.status_code == 200:
                 val = resp.json()[0]['valor']
                 return {"valor": f"{val}%", "variacao": 0, "history": []}

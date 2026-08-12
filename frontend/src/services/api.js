@@ -1,3 +1,5 @@
+import { clearUserSession } from './session.js';
+
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 /**
@@ -8,13 +10,14 @@ const API_URL = import.meta.env.VITE_API_URL || '/api';
  */
 async function api(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
+    const { responseType = 'json', ...fetchOptions } = options;
 
     const token = localStorage.getItem('token');
 
     // Default headers
     const headers = {
         'Content-Type': 'application/json',
-        ...options.headers
+        ...fetchOptions.headers
     };
 
     // Add Auth Header if token exists
@@ -33,7 +36,7 @@ async function api(endpoint, options = {}) {
     }
 
     const config = {
-        ...options,
+        ...fetchOptions,
         headers
     };
 
@@ -46,8 +49,8 @@ async function api(endpoint, options = {}) {
 
         if (!response.ok) {
             if (response.status === 401) {
-                localStorage.removeItem('token');
-                window.location.href = '/login';
+                clearUserSession();
+                window.location.replace('/login');
                 throw new Error("Sessão expirada. Faça login novamente.");
             }
             if (response.status === 404) throw new Error("Recurso não encontrado.");
@@ -55,6 +58,9 @@ async function api(endpoint, options = {}) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.detail || `Erro na requisição: ${response.status}`);
         }
+
+        if (responseType === 'blob') return await response.blob();
+        if (response.status === 204) return null;
 
         return await response.json();
     } catch (error) {

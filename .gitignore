@@ -48,15 +48,28 @@ venv/
 env/
 venv.bak/
 
-# --- AMBIENTE & SEGURANÇA ---
-# Bloqueia o .env genérico e arquivos locais com senhas
+# --- AMBIENTE, SEGREDOS & CONFIGURACAO LOCAL ---
+# Nega por padrao qualquer variante de env, inclusive stack.env e .env.production.
 .env
-.env.local
-.env.*.local
+.env.*
+*.env
+*.env.*
+.envrc
+.envrc.*
+.direnv/
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
 docker-compose.override.yml
+docker-compose.override.yaml
 
-# PERMITE os arquivos de configuração de exemplo do Frontend
+# Allowlist explicita: somente modelos sem credenciais reais podem ser versionados.
 !.env.example
+!*.env.example
+!.env.sample
+!*.env.sample
 
 # --- IDE / EDITOR ---
 # Ignora configurações locais do VS Code (incluindo a pasta que acabamos de apagar)

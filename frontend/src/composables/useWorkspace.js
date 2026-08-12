@@ -3,7 +3,17 @@ import { useRoute } from 'vue-router'
 
 // Estado Global
 const storedWs = localStorage.getItem('activeWorkspace')
-const activeWorkspace = ref(storedWs ? JSON.parse(storedWs) : null)
+let initialWorkspace = null
+
+if (storedWs) {
+    try {
+        initialWorkspace = JSON.parse(storedWs)
+    } catch {
+        localStorage.removeItem('activeWorkspace')
+    }
+}
+
+const activeWorkspace = ref(initialWorkspace)
 
 export function useWorkspace() {
     const route = useRoute()
@@ -13,6 +23,11 @@ export function useWorkspace() {
         if (!workspace) return
         activeWorkspace.value = workspace
         localStorage.setItem('activeWorkspace', JSON.stringify(workspace))
+    }
+
+    const clearActiveWorkspace = () => {
+        activeWorkspace.value = null
+        localStorage.removeItem('activeWorkspace')
     }
 
     // Tentar ler da URL sempre que estiver disponível e mudar
@@ -46,6 +61,7 @@ export function useWorkspace() {
     return {
         activeWorkspace,
         setActiveWorkspace,
+        clearActiveWorkspace,
         getWorkspaceRole,
         getWorkspaceId
     }

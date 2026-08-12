@@ -41,27 +41,27 @@ const handleResetPassword = async () => {
     loading.value = true
     error.value = ''
     success.value = ''
-    
+
     try {
         const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/auth/reset-password`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 token: token.value,
-                new_password: password.value 
+                new_password: password.value
             })
         });
-        
+
         const data = await response.json()
-        
+
         if (!response.ok) {
             throw new Error(data.detail || 'Falha ao redefinir a senha.')
         }
 
         success.value = "Senha redefinida com sucesso! Redirecionando para o login..."
-        
+
         // Redirect to login after 3 seconds
         setTimeout(() => {
             router.push('/login')
@@ -91,7 +91,7 @@ const handleResetPassword = async () => {
         <div class="logo-container">
           <h2>Adm OS</h2>
         </div>
-        
+
         <div class="auth-header">
           <h3>Nova senha</h3>
           <p>Crie uma nova senha para sua conta</p>
@@ -102,11 +102,11 @@ const handleResetPassword = async () => {
             <label for="password">Nova Senha</label>
             <div class="input-wrapper">
               <i class="input-icon">🔒</i>
-              <input 
-                type="password" 
-                id="password" 
-                v-model="password" 
-                required 
+              <input
+                type="password"
+                id="password"
+                v-model="password"
+                required
                 placeholder="Mínimo 8 caracteres"
                 :disabled="!token || !!success"
               >
@@ -117,11 +117,11 @@ const handleResetPassword = async () => {
             <label for="confirmPassword">Confirme a Nova Senha</label>
             <div class="input-wrapper">
               <i class="input-icon">🔒</i>
-              <input 
-                type="password" 
-                id="confirmPassword" 
-                v-model="confirmPassword" 
-                required 
+              <input
+                type="password"
+                id="confirmPassword"
+                v-model="confirmPassword"
+                required
                 placeholder="Repita sua nova senha"
                 :disabled="!token || !!success"
               >

@@ -15,13 +15,13 @@ const router = useRouter()
       <aside class="sidebar">
          <div class="sidebar-title">Gerenciar</div>
          <ul class="sidebar-menu">
-           <li 
+           <li
              :class="{ active: route.path.includes('/settings/general') }"
              @click="router.push(`/${activeWorkspace.id}/settings/general`)"
            >
              ⚙️ Configurações
            </li>
-           <li 
+           <li
              :class="{ active: route.path.includes('/settings/members') }"
              @click="router.push(`/${activeWorkspace.id}/settings/members`)"
            >
@@ -34,7 +34,7 @@ const router = useRouter()
           <h1>{{ route.path.includes('general') ? 'Geral' : 'Pessoas' }} — {{ activeWorkspace.name }}</h1>
           <p class="subtitle">{{ route.path.includes('general') ? 'Gerencie as configurações fundamentais do seu Workspace.' : 'Gerencie quem tem acesso a esta organização.' }}</p>
         </header>
-        
+
         <router-view />
       </main>
     </div>

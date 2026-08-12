@@ -9,6 +9,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 300
 RESET_TOKEN_EXPIRE_MINUTES = 30
 INVITE_TOKEN_EXPIRE_MINUTES = 10080  # 7 dias
 
+TOKEN_TYPE_CLAIM = "token_type"
+ACCESS_TOKEN_TYPE = "access"
+RESET_TOKEN_TYPE = "reset"
+INVITE_TOKEN_TYPE = "invite"
+INVITABLE_ROLES = frozenset({"MEMBER", "ADMIN"})
+
 SECRET_KEY = settings.SECRET_KEY
 RESET_SECRET_KEY = settings.RESET_SECRET_KEY
 
@@ -26,13 +32,18 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
+    # The token type is assigned here instead of trusting caller-provided data.
+    to_encode.update({"exp": expire, TOKEN_TYPE_CLAIM: ACCESS_TOKEN_TYPE})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 def create_reset_token(email: str):
     expire = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"sub": email, "exp": expire}
+    to_encode = {
+        "sub": email,
+        "exp": expire,
+        TOKEN_TYPE_CLAIM: RESET_TOKEN_TYPE,
+    }
     encoded_jwt = jwt.encode(to_encode, RESET_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -40,19 +51,28 @@ def verify_reset_token(token: str) -> Optional[str]:
     try:
         payload = jwt.decode(token, RESET_SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
-        if email is None:
+        if (
+            payload.get(TOKEN_TYPE_CLAIM) != RESET_TOKEN_TYPE
+            or not isinstance(email, str)
+            or not email
+        ):
             return None
-        return str(email)
+        return email
     except JWTError:
         return None
 
 def create_invite_token(email: str, workspace_id: int, role: str):
+    role_value = getattr(role, "value", role)
+    if role_value not in INVITABLE_ROLES:
+        raise ValueError("Convites só podem conceder os papéis MEMBER ou ADMIN.")
+
     expire = datetime.utcnow() + timedelta(minutes=INVITE_TOKEN_EXPIRE_MINUTES)
     to_encode = {
         "sub": email,
         "workspace_id": workspace_id,
-        "role": role,
-        "exp": expire
+        "role": role_value,
+        "exp": expire,
+        TOKEN_TYPE_CLAIM: INVITE_TOKEN_TYPE,
     }
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -64,13 +84,21 @@ def verify_invite_token(token: str) -> Optional[dict]:
         workspace_id = payload.get("workspace_id")
         role = payload.get("role")
 
-        if not email or not workspace_id or not role:
+        if (
+            payload.get(TOKEN_TYPE_CLAIM) != INVITE_TOKEN_TYPE
+            or not isinstance(email, str)
+            or not email
+            or not isinstance(workspace_id, int)
+            or isinstance(workspace_id, bool)
+            or workspace_id <= 0
+            or role not in INVITABLE_ROLES
+        ):
             return None
 
         return {
-            "email": str(email),
-            "workspace_id": int(workspace_id),
-            "role": str(role)
+            "email": email,
+            "workspace_id": workspace_id,
+            "role": role,
         }
-    except JWTError:
+    except (JWTError, TypeError, ValueError):
         return None

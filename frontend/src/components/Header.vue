@@ -2,10 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspace } from '../composables/useWorkspace'
-import api from '../services/api'
+import api from '../services/api.js'
+import { clearUserSession } from '../services/session.js'
 
 const router = useRouter()
-const { activeWorkspace, setActiveWorkspace } = useWorkspace()
+const { activeWorkspace, setActiveWorkspace, clearActiveWorkspace } = useWorkspace()
 
 const workspaces = ref([])
 const showDropdown = ref(false)
@@ -15,7 +16,7 @@ const loadWorkspaces = async () => {
     const data = await api('/workspaces/')
     workspaces.value = data
     localStorage.setItem('userWorkspaces', JSON.stringify(data))
-    
+
     // Fallback: If no active workspace is set but they exist, set the first one
     if (!activeWorkspace.value && data.length > 0) {
       setActiveWorkspace(data[0])
@@ -42,9 +43,10 @@ const closeAndNavigate = (path) => {
 }
 
 const logout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('activeWorkspace')
-  router.push('/login')
+  clearUserSession()
+  clearActiveWorkspace()
+  workspaces.value = []
+  router.replace('/login')
 }
 </script>
 
@@ -54,14 +56,14 @@ const logout = () => {
       <div class="logo" @click="router.push(`/${activeWorkspace.id}/dashboard`)">
         🚀 AdmOS
       </div>
-      
+
       <!-- Workspace Switcher -->
       <div class="workspace-switcher" v-if="activeWorkspace">
         <div class="current-workspace" @click="showDropdown = !showDropdown">
           {{ activeWorkspace.name }}
           <span class="chevron">▼</span>
         </div>
-        
+
         <div class="dropdown-menu clickup-style" v-if="showDropdown">
           <!-- Active Workspace Card -->
           <div class="active-ws-header">
@@ -88,7 +90,7 @@ const logout = () => {
           <div class="switch-workspaces" v-if="workspaces.length > 1">
             <div class="section-label">Trocar de Workspace</div>
             <template v-for="ws in workspaces" :key="ws.id">
-              <div 
+              <div
                 v-if="ws.id !== activeWorkspace.id"
                 class="dropdown-item switch-item"
                 @click="selectWorkspace(ws)"
@@ -107,7 +109,7 @@ const logout = () => {
         </div>
       </div>
     </div>
-    
+
     <div class="actions">
       <button @click="router.push('/profile')" class="btn-profile">👤 Perfil</button>
       <button @click="logout" class="btn-logout">Sair</button>
@@ -353,17 +355,17 @@ const logout = () => {
     gap: 0.8rem;
     margin-bottom: 1rem;
   }
-  
+
   .header-left {
     width: 100%;
     justify-content: space-between;
     gap: 0.5rem;
   }
-  
+
   .logo {
     font-size: 1.2rem;
   }
-  
+
   .current-workspace {
     padding: 0.4rem 0.6rem;
     font-size: 0.85rem;
@@ -372,7 +374,7 @@ const logout = () => {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
+
   .current-workspace .chevron {
     margin-left: 4px;
   }
@@ -383,12 +385,12 @@ const logout = () => {
     border-top: 1px solid #f1f5f9;
     padding-top: 0.8rem;
   }
-  
+
   .btn-profile, .btn-logout {
     padding: 0.5rem 0.8rem;
     font-size: 0.85rem;
   }
-  
+
   .dropdown-menu.clickup-style {
     position: fixed;
     top: 60px;

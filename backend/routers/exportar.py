@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import Dict, List, Any
+from typing import Any, Literal
 import pandas as pd
 import io
 import logging
@@ -12,15 +12,22 @@ router = APIRouter(prefix="/exportar", tags=["Exportação"])
 
 # Alteramos 'dados' para Any ou Dict genérico para aceitar estruturas diferentes
 class DadosExportacao(BaseModel):
-    dados: Any 
-    tipo: str # "balanco", "dre", "indicadores"
+    dados: Any
+    tipo: Literal["balanco", "dre", "indicadores"]
+
+
+def safe_spreadsheet_text(value: Any) -> Any:
+    """Prevent user-controlled labels from being interpreted as formulas."""
+    if isinstance(value, str) and value.startswith(("=", "+", "-", "@")):
+        return f"'{value}"
+    return value
 
 @router.post("/excel")
 def exportar_excel(payload: DadosExportacao):
     try:
         output = io.BytesIO()
         writer = pd.ExcelWriter(output, engine='openpyxl')
-        
+
         data = payload.dados
         rows = []
 
@@ -40,7 +47,7 @@ def exportar_excel(payload: DadosExportacao):
                     for item in items:
                         rows.append({
                             "Grupo": label,
-                            "Conta": item.get('conta'),
+                            "Conta": safe_spreadsheet_text(item.get('conta')),
                             "Valor": float(item.get('valor', 0))
                         })
 
@@ -64,7 +71,7 @@ def exportar_excel(payload: DadosExportacao):
                     for item in items:
                         rows.append({
                             "Categoria": label,
-                            "Conta": item.get('conta'),
+                            "Conta": safe_spreadsheet_text(item.get('conta')),
                             "Valor": float(item.get('valor', 0))
                         })
 
@@ -74,7 +81,7 @@ def exportar_excel(payload: DadosExportacao):
             def add_section(titulo, dados_indices, sufixo=""):
                 if not dados_indices: return
                 rows.append({"Categoria": titulo.upper(), "Indicador": "", "Valor": ""}) # Separador
-                
+
                 # Mapeamento de nomes amigáveis
                 nomes = {
                     "corrente": "Liquidez Corrente", "seca": "Liquidez Seca", "imediata": "Liquidez Imediata", "geral": "Liquidez Geral",
@@ -86,25 +93,25 @@ def exportar_excel(payload: DadosExportacao):
 
                 for chave, valor in dados_indices.items():
                     nome_bonito = nomes.get(chave, chave)
-                    
+
                     # Formatação especial para % ou dias
                     val_fmt = valor
                     unidade = ""
-                    
+
                     if sufixo == "%":
                         unidade = "%"
                     elif sufixo == " dias":
                         unidade = " dias"
                     elif chave in ["ct_cp"]:
                         unidade = "x" # Ex: 1.5x
-                    
+
                     rows.append({
                         "Categoria": titulo,
                         "Indicador": nome_bonito,
                         "Valor": val_fmt,
                         "Unidade": unidade
                     })
-                
+
                 rows.append({"Categoria": "", "Indicador": "", "Valor": "", "Unidade": ""}) # Linha em branco
 
             # Extrai os dados agrupados
@@ -120,11 +127,11 @@ def exportar_excel(payload: DadosExportacao):
 
         # --- GERAÇÃO DO ARQUIVO ---
         df = pd.DataFrame(rows)
-        
+
         # Nome da aba
         sheet = 'Relatório'
         df.to_excel(writer, index=False, sheet_name=sheet)
-        
+
         # Ajuste Automático de Colunas (Beautify)
         worksheet = writer.sheets[sheet]
         for column in worksheet.columns:
