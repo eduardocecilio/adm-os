@@ -18,9 +18,20 @@ class DadosExportacao(BaseModel):
 
 def safe_spreadsheet_text(value: Any) -> Any:
     """Prevent user-controlled labels from being interpreted as formulas."""
-    if isinstance(value, str) and value.startswith(("=", "+", "-", "@")):
+    if (
+        isinstance(value, str)
+        and value.lstrip(" \t\r\n").startswith(("=", "+", "-", "@"))
+    ):
         return f"'{value}"
     return value
+
+
+def sanitize_spreadsheet_rows(rows: list[dict]) -> list[dict]:
+    """Neutralize formula prefixes in every textual cell, regardless of report type."""
+    return [
+        {column: safe_spreadsheet_text(value) for column, value in row.items()}
+        for row in rows
+    ]
 
 @router.post("/excel")
 def exportar_excel(payload: DadosExportacao):
@@ -126,7 +137,7 @@ def exportar_excel(payload: DadosExportacao):
             add_section("Atividade (Ciclos)", ativ, " dias")
 
         # --- GERAÇÃO DO ARQUIVO ---
-        df = pd.DataFrame(rows)
+        df = pd.DataFrame(sanitize_spreadsheet_rows(rows))
 
         # Nome da aba
         sheet = 'Relatório'

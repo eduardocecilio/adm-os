@@ -3,6 +3,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise RuntimeError(f"{name} deve ser true ou false")
+
+
 class Settings:
     # Database
     SQLALCHEMY_DATABASE_URL: str = os.getenv("DATABASE_URL", "")
@@ -22,6 +36,7 @@ class Settings:
 
     # Frontend settings
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:8082")
+    ALLOW_PUBLIC_REGISTRATION: bool = _env_bool("ALLOW_PUBLIC_REGISTRATION", False)
 
 settings = Settings()
 
@@ -52,7 +67,13 @@ if settings.SECRET_KEY == settings.RESET_SECRET_KEY:
 if not settings.SQLALCHEMY_DATABASE_URL:
     raise RuntimeError("DATABASE_URL não definida. Defina no arquivo .env")
 
-if bool(settings.N8N_WEBHOOK_URL) != bool(settings.N8N_WEBHOOK_TOKEN):
+email_settings = (
+    settings.N8N_WEBHOOK_URL,
+    settings.N8N_WEBHOOK_TOKEN,
+    settings.EMAIL_FROM,
+)
+if any(email_settings) and not all(email_settings):
     raise RuntimeError(
-        "N8N_WEBHOOK_URL e N8N_WEBHOOK_TOKEN devem ser definidos juntos ou deixados vazios"
+        "N8N_WEBHOOK_URL, N8N_WEBHOOK_TOKEN e EMAIL_FROM devem ser definidos "
+        "juntos ou deixados vazios"
     )

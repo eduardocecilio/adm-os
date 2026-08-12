@@ -26,11 +26,15 @@ class UserOut(BaseModel):
     class Config:
         from_attributes = True
 
+
+class UserUpdateResult(UserOut):
+    reauth_required: bool
+
 @router.get("/me", response_model=UserOut)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
-@router.put("/me", response_model=UserOut)
+@router.put("/me", response_model=UserUpdateResult)
 async def update_user_me(user_update: UserUpdate,
                         current_user: User = Depends(get_current_active_user),
                         db: Session = Depends(get_db)):
@@ -40,19 +44,28 @@ async def update_user_me(user_update: UserUpdate,
             detail="Senha atual incorreta",
         )
 
-    if user_update.email is None and user_update.password is None:
+    email_changed = bool(user_update.email and user_update.email != current_user.email)
+    password_changed = bool(user_update.password)
+
+    if not email_changed and not password_changed:
         raise HTTPException(status_code=400, detail="Nenhuma alteração informada")
 
-    if user_update.email and user_update.email != current_user.email:
+    if email_changed:
         # Check if email is taken
         existing_user = db.query(User).filter(User.email == user_update.email).first()
         if existing_user:
             raise HTTPException(status_code=400, detail="Email already registered")
         current_user.email = user_update.email
 
-    if user_update.password:
+    if password_changed:
         current_user.hashed_password = get_password_hash(user_update.password)
 
+    current_user.auth_version += 1
     db.commit()
     db.refresh(current_user)
-    return current_user
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "is_active": current_user.is_active,
+        "reauth_required": True,
+    }

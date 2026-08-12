@@ -5,5 +5,5 @@ useDefault = true
 description = "Synthetic JWT keys used only by the isolated test suite"
 condition = "AND"
 regexTarget = "line"
-paths = ['''^backend/tests/conftest\.py$''']
+paths = ['''(?:^|/)backend/tests/conftest\.py$''']
 regexes = ['''test-(reset-)?secret-key-nao-usar-em-producao-1234567890abcdef''']

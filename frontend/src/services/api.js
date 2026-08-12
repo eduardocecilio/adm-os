@@ -1,4 +1,4 @@
-import { clearUserSession } from './session.js';
+import { clearUserSession, getSessionToken } from './session.js';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -12,7 +12,7 @@ async function api(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
     const { responseType = 'json', ...fetchOptions } = options;
 
-    const token = localStorage.getItem('token');
+    const token = getSessionToken();
 
     // Default headers
     const headers = {

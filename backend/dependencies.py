@@ -7,6 +7,7 @@ from models.user import User
 from auth_utils import (
     ACCESS_TOKEN_TYPE,
     ALGORITHM,
+    AUTH_VERSION_CLAIM,
     SECRET_KEY,
     TOKEN_TYPE_CLAIM,
 )
@@ -22,17 +23,21 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
+        token_auth_version = payload.get(AUTH_VERSION_CLAIM)
         if (
             payload.get(TOKEN_TYPE_CLAIM) != ACCESS_TOKEN_TYPE
             or not isinstance(email, str)
             or not email
+            or isinstance(token_auth_version, bool)
+            or not isinstance(token_auth_version, int)
+            or token_auth_version < 0
         ):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
 
     user = db.query(User).filter(User.email == email).first()
-    if user is None:
+    if user is None or user.auth_version != token_auth_version:
         raise credentials_exception
     return user
 

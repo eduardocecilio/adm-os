@@ -44,9 +44,19 @@ jobs:
       - name: Generate ephemeral CI-only values
         shell: bash
         run: |
-          echo "SECRET_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
-          echo "RESET_SECRET_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
-          echo "POSTGRES_PASSWORD=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          secret_key="$(openssl rand -hex 32)"
+          reset_secret_key="$(openssl rand -hex 32)"
+          postgres_password="$(openssl rand -hex 32)"
+
+          echo "::add-mask::$secret_key"
+          echo "::add-mask::$reset_secret_key"
+          echo "::add-mask::$postgres_password"
+
+          {
+            echo "SECRET_KEY=$secret_key"
+            echo "RESET_SECRET_KEY=$reset_secret_key"
+            echo "POSTGRES_PASSWORD=$postgres_password"
+          } >> "$GITHUB_ENV"
 
       - name: Validate Compose configuration
         run: docker compose config --quiet

@@ -12,6 +12,7 @@ import email_utils
 from auth_utils import (
     ACCESS_TOKEN_TYPE,
     ALGORITHM,
+    AUTH_VERSION_CLAIM,
     INVITE_TOKEN_TYPE,
     RESET_SECRET_KEY,
     RESET_TOKEN_TYPE,
@@ -20,6 +21,7 @@ from auth_utils import (
     create_access_token,
     create_invite_token,
     create_reset_token,
+    get_password_hash,
     verify_invite_token,
     verify_reset_token,
 )
@@ -29,7 +31,7 @@ from main import app
 from models.user import User
 from models.workspace import Workspace, WorkspaceRole as ModelWorkspaceRole, WorkspaceUser
 from routers.users import UserUpdate
-from routers.exportar import safe_spreadsheet_text
+from routers.exportar import safe_spreadsheet_text, sanitize_spreadsheet_rows
 from routers import workspaces as workspaces_router
 from schemas.workspace import WorkspaceInvite, WorkspaceRole
 
@@ -39,9 +41,10 @@ client = TestClient(app)
 
 def test_tokens_have_distinct_enforced_types():
     access_token = create_access_token(
-        {"sub": "user@example.com", TOKEN_TYPE_CLAIM: INVITE_TOKEN_TYPE}
+        {"sub": "user@example.com", TOKEN_TYPE_CLAIM: INVITE_TOKEN_TYPE},
+        auth_version=3,
     )
-    reset_token = create_reset_token("user@example.com")
+    reset_token = create_reset_token("user@example.com", auth_version=3)
     invite_token = create_invite_token("user@example.com", 42, "MEMBER")
 
     access_payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -49,9 +52,14 @@ def test_tokens_have_distinct_enforced_types():
     invite_payload = jwt.decode(invite_token, SECRET_KEY, algorithms=[ALGORITHM])
 
     assert access_payload[TOKEN_TYPE_CLAIM] == ACCESS_TOKEN_TYPE
+    assert access_payload[AUTH_VERSION_CLAIM] == 3
     assert reset_payload[TOKEN_TYPE_CLAIM] == RESET_TOKEN_TYPE
+    assert reset_payload[AUTH_VERSION_CLAIM] == 3
     assert invite_payload[TOKEN_TYPE_CLAIM] == INVITE_TOKEN_TYPE
-    assert verify_reset_token(reset_token) == "user@example.com"
+    assert verify_reset_token(reset_token) == {
+        "email": "user@example.com",
+        "auth_version": 3,
+    }
     assert verify_invite_token(invite_token) == {
         "email": "user@example.com",
         "workspace_id": 42,
@@ -138,7 +146,114 @@ def test_profile_password_requires_current_password_and_eight_characters():
 def test_spreadsheet_formula_prefixes_are_neutralized():
     assert safe_spreadsheet_text("=HYPERLINK(\"https://example.test\")") == "'=HYPERLINK(\"https://example.test\")"
     assert safe_spreadsheet_text("@SUM(1,1)") == "'@SUM(1,1)"
+    assert safe_spreadsheet_text("  =1+1") == "'  =1+1"
+    assert safe_spreadsheet_text("\t-2+3") == "'\t-2+3"
     assert safe_spreadsheet_text("Conta segura") == "Conta segura"
+
+    assert sanitize_spreadsheet_rows([
+        {"Indicador": "=CMD()", "Valor": "+1", "Seguro": 42}
+    ]) == [
+        {"Indicador": "'=CMD()", "Valor": "'+1", "Seguro": 42}
+    ]
+
+
+def test_public_registration_is_blocked_for_external_hosts():
+    response = client.post(
+        "/auth/register",
+        headers={"host": "demo.example.test"},
+        json={
+            "email": f"external-{uuid4().hex}@example.com",
+            "password": "password-segura",
+            "workspace_name": "External",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"].startswith("Cadastro público desativado")
+
+
+def test_local_registration_remains_available_for_the_demo():
+    Base.metadata.create_all(bind=engine)
+    unique = uuid4().hex
+    email = f"local-{unique}@example.com"
+    workspace_name = f"Local demo {unique}"
+
+    response = client.post(
+        "/auth/register",
+        json={
+            "email": email,
+            "password": "password-segura",
+            "workspace_name": workspace_name,
+        },
+    )
+
+    assert response.status_code == 200
+    access_payload = jwt.decode(
+        response.json()["access_token"],
+        SECRET_KEY,
+        algorithms=[ALGORITHM],
+    )
+    assert access_payload[AUTH_VERSION_CLAIM] == 0
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.email == email).first()
+        workspace = db.query(Workspace).filter(Workspace.name == workspace_name).first()
+        if user:
+            db.delete(user)
+        if workspace:
+            db.delete(workspace)
+        db.commit()
+    finally:
+        db.close()
+
+
+def test_password_reset_is_single_use_and_revokes_existing_access_tokens():
+    Base.metadata.create_all(bind=engine)
+    unique = uuid4().hex
+    email = f"reset-{unique}@example.com"
+
+    db = SessionLocal()
+    user = User(
+        email=email,
+        hashed_password=get_password_hash("senha-antiga-segura"),
+        is_active=True,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    reset_token = create_reset_token(email, auth_version=user.auth_version)
+    access_token = create_access_token(
+        {"sub": email},
+        auth_version=user.auth_version,
+    )
+
+    try:
+        first_reset = client.post(
+            "/auth/reset-password",
+            json={"token": reset_token, "new_password": "senha-nova-segura"},
+        )
+        second_reset = client.post(
+            "/auth/reset-password",
+            json={"token": reset_token, "new_password": "outra-senha-segura"},
+        )
+        old_session = client.get(
+            "/users/me",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+        assert first_reset.status_code == 200
+        assert second_reset.status_code == 400
+        assert second_reset.json()["detail"] == "Token inválido ou já utilizado"
+        assert old_session.status_code == 401
+    finally:
+        db.expire_all()
+        persisted_user = db.query(User).filter(User.email == email).first()
+        if persisted_user:
+            db.delete(persisted_user)
+            db.commit()
+        db.close()
 
 
 def test_email_html_escapes_message_and_link(monkeypatch):
@@ -154,6 +269,7 @@ def test_email_html_escapes_message_and_link(monkeypatch):
 
     monkeypatch.setattr(email_utils.settings, "N8N_WEBHOOK_URL", "https://example.test/hook")
     monkeypatch.setattr(email_utils.settings, "N8N_WEBHOOK_TOKEN", "test-token")
+    monkeypatch.setattr(email_utils.settings, "EMAIL_FROM", "sender@example.test")
     monkeypatch.setattr(email_utils.requests, "post", fake_post)
 
     asyncio.run(

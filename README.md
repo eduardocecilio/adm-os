@@ -69,13 +69,19 @@ obrigatório continue vazio.
 | `APP_PORT` | não | Porta loopback do frontend, padrão `8082` |
 | `BACKEND_PORT` | não | Porta loopback da API, padrão `8000` |
 | `FRONTEND_URL` | não | Origem usada em CORS e links de e-mail |
+| `ALLOW_PUBLIC_REGISTRATION` | não | Mantém cadastro sem convite bloqueado fora de localhost; padrão `false` |
 | `VITE_API_URL` | não | Prefixo público da API no JavaScript, padrão `/api` |
 | `N8N_WEBHOOK_URL` | não | Endpoint opcional para envio de e-mail |
 | `N8N_WEBHOOK_TOKEN` | não | Credencial opcional do webhook; nunca versione |
-| `EMAIL_FROM` | não | Remetente usado pela integração opcional |
+| `EMAIL_FROM` | não | Remetente usado pela integração opcional; obrigatório quando o webhook estiver ativo |
 
 Variáveis `VITE_*` são incorporadas ao bundle entregue ao navegador. Elas
 nunca devem conter tokens, senhas ou qualquer outro segredo.
+
+Com `ALLOW_PUBLIC_REGISTRATION=false`, a criação da primeira conta continua
+funcionando no Quick Start em `localhost`, mas uma instalação acessada por host
+externo exige convite. Não altere esse controle sem implementar proteção contra
+abuso e revisar novamente o fluxo de cadastro.
 
 ## Arquitetura local
 
@@ -90,6 +96,9 @@ navegador -> 127.0.0.1:8082 -> frontend (Nginx)
 - **Frontend:** Vue 3, Vite e Nginx com proxy de `/api`.
 - **Banco:** PostgreSQL 15 em volume e rede gerenciados pelo Compose, sem porta
   publicada no host.
+
+Os cálculos e indicadores deste projeto são demonstrativos e não constituem
+aconselhamento financeiro, contábil, fiscal ou de investimento.
 
 ## Verificação
 

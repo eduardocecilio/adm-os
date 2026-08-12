@@ -1,7 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '../../services/api'
 import Header from '../../components/Header.vue'
+import { clearUserSession } from '../../services/session.js'
+
+const router = useRouter()
 
 const user = ref({
   email: '',
@@ -54,15 +58,22 @@ const updateProfile = async () => {
       payload.password = password.value
     }
 
-    await api('/users/me', {
+    const result = await api('/users/me', {
       method: 'PUT',
       body: payload
     })
 
-    message.value = "Perfil atualizado com sucesso!"
+    message.value = result.reauth_required
+      ? "Credenciais atualizadas. Entre novamente para continuar."
+      : "Perfil atualizado com sucesso!"
     password.value = ''
     confirmPassword.value = ''
     currentPassword.value = ''
+
+    if (result.reauth_required) {
+      clearUserSession()
+      setTimeout(() => router.replace('/login'), 1200)
+    }
   } catch (err) {
     error.value = err.message || "Erro ao atualizar perfil."
   } finally {

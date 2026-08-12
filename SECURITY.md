@@ -9,10 +9,15 @@ internet.
 
 ## Limites conhecidos
 
-- O desenho de autenticação, convites, papéis de workspace e tokens precisa de
-  nova revisão antes de qualquer uso real.
-- O frontend armazena tokens no navegador e todo valor `VITE_*` fica público no
-  JavaScript compilado.
+- O desenho de autenticação, convites e papéis de workspace precisa de nova
+  revisão antes de qualquer uso real. Cadastro sem convite é bloqueado fora de
+  localhost por padrão.
+- Tokens de acesso duram uma hora, ficam somente no `sessionStorage` e são
+  revogados quando a senha ou o e-mail muda. O armazenamento continua acessível
+  ao JavaScript; qualquer implantação real deve preferir sessões com cookies
+  `HttpOnly` e proteção CSRF.
+- Tokens de redefinição duram 30 minutos e se tornam inválidos após o primeiro
+  uso. Todo valor `VITE_*` fica público no JavaScript compilado.
 - A demonstração usa HTTP local e não fornece TLS, backup, monitoramento,
   recuperação ou gerenciamento externo de segredos.
 - A integração de e-mail via webhook é opcional e vem desativada. Ao testá-la,

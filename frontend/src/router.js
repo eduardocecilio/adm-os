@@ -76,12 +76,13 @@ const router = createRouter({
 })
 
 import api from './services/api'
+import { getSessionToken } from './services/session.js'
 
 // Cache simples para não sobrecarregar as rotas com requests pro backend
 let cachedWorkspaces = null
 
 router.beforeEach(async (to, from, next) => {
-  const token = localStorage.getItem('token')
+  const token = getSessionToken()
 
   // 1. Verificação de Autenticação Básica
   if (to.meta.requiresAuth && !token) {

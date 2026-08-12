@@ -5,11 +5,12 @@ from passlib.context import CryptContext
 from config import settings
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 300
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 RESET_TOKEN_EXPIRE_MINUTES = 30
 INVITE_TOKEN_EXPIRE_MINUTES = 10080  # 7 dias
 
 TOKEN_TYPE_CLAIM = "token_type"
+AUTH_VERSION_CLAIM = "auth_version"
 ACCESS_TOKEN_TYPE = "access"
 RESET_TOKEN_TYPE = "reset"
 INVITE_TOKEN_TYPE = "invite"
@@ -26,39 +27,59 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+def _validate_auth_version(auth_version: int) -> None:
+    if isinstance(auth_version, bool) or not isinstance(auth_version, int) or auth_version < 0:
+        raise ValueError("auth_version deve ser um inteiro não negativo")
+
+
+def create_access_token(
+    data: dict,
+    auth_version: int = 0,
+    expires_delta: Optional[timedelta] = None,
+):
+    _validate_auth_version(auth_version)
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     # The token type is assigned here instead of trusting caller-provided data.
-    to_encode.update({"exp": expire, TOKEN_TYPE_CLAIM: ACCESS_TOKEN_TYPE})
+    to_encode.update({
+        "exp": expire,
+        TOKEN_TYPE_CLAIM: ACCESS_TOKEN_TYPE,
+        AUTH_VERSION_CLAIM: auth_version,
+    })
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def create_reset_token(email: str):
+def create_reset_token(email: str, auth_version: int = 0):
+    _validate_auth_version(auth_version)
     expire = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
     to_encode = {
         "sub": email,
         "exp": expire,
         TOKEN_TYPE_CLAIM: RESET_TOKEN_TYPE,
+        AUTH_VERSION_CLAIM: auth_version,
     }
     encoded_jwt = jwt.encode(to_encode, RESET_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_reset_token(token: str) -> Optional[str]:
+def verify_reset_token(token: str) -> Optional[dict]:
     try:
         payload = jwt.decode(token, RESET_SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
+        auth_version = payload.get(AUTH_VERSION_CLAIM)
         if (
             payload.get(TOKEN_TYPE_CLAIM) != RESET_TOKEN_TYPE
             or not isinstance(email, str)
             or not email
+            or isinstance(auth_version, bool)
+            or not isinstance(auth_version, int)
+            or auth_version < 0
         ):
             return None
-        return email
-    except JWTError:
+        return {"email": email, "auth_version": auth_version}
+    except (JWTError, TypeError, ValueError):
         return None
 
 def create_invite_token(email: str, workspace_id: int, role: str):

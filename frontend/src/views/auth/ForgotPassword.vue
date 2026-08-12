@@ -108,7 +108,9 @@ const handleForgotPassword = async () => {
 
 .auth-image-side {
   flex: 1;
-  background-image: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070&auto=format&fit=crop');
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.45), transparent 45%),
+    linear-gradient(145deg, #0f172a, #1e3a8a 55%, #0f766e);
   background-size: cover;
   background-position: center;
   position: relative;

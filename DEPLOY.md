@@ -76,5 +76,8 @@ Uma eventual retomada exige, no mínimo:
 7. CI com versões de ações e dependências revisadas, além de análise de segurança;
 8. definição de manutenção, suporte e resposta a vulnerabilidades.
 
+O bloqueio de cadastro público e a revogação de tokens deste snapshot são
+defesas adicionais, não uma autorização para expor a aplicação.
+
 Até esses itens serem concluídos e verificados, não encaminhe portas, não anexe
 o stack a redes de proxy e não publique a aplicação na internet.

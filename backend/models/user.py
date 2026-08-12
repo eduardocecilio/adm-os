@@ -9,6 +9,9 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+    # Incremented whenever credentials change. JWTs carry this version so a
+    # password reset/change invalidates every previously issued access token.
+    auth_version = Column(Integer, nullable=False, default=0, server_default="0")
 
     # Relationships
     workspaces = relationship("WorkspaceUser", back_populates="user", cascade="all, delete-orphan")

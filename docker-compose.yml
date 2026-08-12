@@ -62,6 +62,7 @@ services:
       N8N_WEBHOOK_TOKEN: ${N8N_WEBHOOK_TOKEN:-}
       EMAIL_FROM: ${EMAIL_FROM:-}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8082}
+      ALLOW_PUBLIC_REGISTRATION: ${ALLOW_PUBLIC_REGISTRATION:-false}
       ENV: development
       TZ: America/Sao_Paulo
     depends_on:

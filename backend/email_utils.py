@@ -7,8 +7,15 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 async def send_email(subject: str, email_to: list, body: dict):
-    if not settings.N8N_WEBHOOK_URL or not settings.N8N_WEBHOOK_TOKEN:
-        logger.warning("N8N_WEBHOOK_URL ou N8N_WEBHOOK_TOKEN não configurados. Email não enviado.")
+    if not all((
+        settings.N8N_WEBHOOK_URL,
+        settings.N8N_WEBHOOK_TOKEN,
+        settings.EMAIL_FROM,
+    )):
+        logger.warning(
+            "N8N_WEBHOOK_URL, N8N_WEBHOOK_TOKEN ou EMAIL_FROM não configurados. "
+            "Email não enviado."
+        )
         return
 
     message = escape(str(body.get("message", "")))

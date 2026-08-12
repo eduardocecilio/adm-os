@@ -154,7 +154,7 @@ const btcDisplay = computed(() => moedaBaseCripto.value === 'BRL' ? dados.value.
             </div>
           </div>
           <div class="card-crypto-big clickable" @click="abrirModal('Bitcoin (BTC)', btcDisplay)">
-            <div class="crypto-header"><img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=025" width="32"><span>Bitcoin</span></div>
+            <div class="crypto-header"><span class="bitcoin-mark" aria-hidden="true">₿</span><span>Bitcoin</span></div>
             <strong class="crypto-val" v-if="!dados.btc.loading">{{ formatCurrency(btcDisplay.valor, moedaBaseCripto) }}</strong>
             <span class="crypto-loading" v-else>...</span>
             <div class="crypto-chart-area">
@@ -220,6 +220,7 @@ const btcDisplay = computed(() => moedaBaseCripto.value === 'BRL' ? dados.value.
 .toggle-switch span.active { background: white; color: #f7931a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .card-crypto-big { background: linear-gradient(145deg, #1a252f 0%, #2c3e50 100%); color: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 20px rgba(44, 62, 80, 0.2); }
 .crypto-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 600; opacity: 0.9; }
+.bitcoin-mark { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #f7931a; color: white; font-size: 21px; font-weight: 700; }
 .crypto-val { font-size: 2rem; display: block; margin-bottom: 10px; }
 .crypto-chart-area { height: 60px; margin-bottom: 15px; }
 .crypto-footer { display: flex; justify-content: space-between; font-size: 0.85rem; opacity: 0.8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }

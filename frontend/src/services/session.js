@@ -1,5 +1,4 @@
 const USER_SCOPED_STORAGE_KEYS = [
-    'token',
     'activeWorkspace',
     'userWorkspaces',
     'historico_balanco',
@@ -7,10 +6,17 @@ const USER_SCOPED_STORAGE_KEYS = [
 ];
 
 export function clearUserSession() {
+    sessionStorage.removeItem('token');
+    // Remove tokens written by older snapshots during the security migration.
+    localStorage.removeItem('token');
     USER_SCOPED_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
 }
 
 export function startUserSession(token) {
     clearUserSession();
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
+}
+
+export function getSessionToken() {
+    return sessionStorage.getItem('token');
 }
